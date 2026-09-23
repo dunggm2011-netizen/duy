@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Tool Dự Đoán · DuydevTool</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --neon-tai:#00f2fe;
+  --neon-xiu:#ff2a6d;
+  --glass-bg:rgba(10,10,18,0.75);
+  --glass-border:rgba(255,255,255,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body,html{width:100%;height:100%;overflow:hidden;background:#030308;font-family:'Plus Jakarta Sans',sans-serif}
+
+.game-container{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background:#030308}
+.game-container iframe{width:100%;height:100%;border:none;background:#030308}
+
+.empty-state{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  gap:16px;padding:24px;text-align:center;
+  color:#94a3b8;background:#030308;z-index:3;
+}
+.empty-state h2{
+  font-family:'Space Grotesk',sans-serif;
+  color:#fff;font-size:22px;letter-spacing:1px;
+  text-shadow:0 0 20px rgba(0,242,254,.5);
+}
+.empty-state p{font-size:13px;max-width:400px;line-height:1.6}
+.empty-state input{
+  width:100%;max-width:500px;padding:14px 18px;
+  border-radius:14px;
+  background:rgba(15,15,26,.9);
+  border:1px solid rgba(0,242,254,.4);
+  color:#fff;font-size:14px;font-family:inherit;
+  outline:none;transition:.25s;
+}
+.empty-state input:focus{
+  border-color:#00f2fe;
+  box-shadow:0 0 0 4px rgba(0,242,254,.15);
+}
+.empty-state button{
+  padding:13px 28px;border-radius:14px;
+  background:linear-gradient(135deg,#00f2fe,#0072ff);
+  color:#fff;font-weight:800;font-size:14px;
+  border:none;cursor:pointer;letter-spacing:1px;
+  font-family:inherit;transition:.25s;
+  box-shadow:0 8px 24px -8px rgba(0,242,254,.7);
+}
+.empty-state button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 32px -8px rgba(0,242,254,.9);
+}
+.empty-state .hint{
+  font-size:11.5px;color:#64748b;margin-top:8px;
+  max-width:500px;
+}
+
+.loading-game{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;
+  color:#94a3b8;font-family:'Space Grotesk',sans-serif;font-size:13px;
+  background:#030308;z-index:2;transition:opacity .4s;
+}
+.loading-game.done{opacity:0;pointer-events:none}
+.loading-game .spin{
+  width:40px;height:40px;
+  border:3px solid rgba(0,242,254,.2);border-top-color:#00f2fe;
+  border-radius:50%;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.max-mini-widget{
+  position:fixed;top:25px;right:25px;width:260px;
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  border-radius:20px;padding:14px;color:#fff;z-index:999999;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 20px 40px rgba(0,0,0,0.6),inset 0 1px 1px rgba(255,255,255,0.2);
+  user-select:none;touch-action:none;cursor:grab;
+  transform-origin:center center;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),width .25s,height .25s,padding .25s,background .3s;
+}
+.max-mini-widget:active{cursor:grabbing}
+.widget-header{
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding-bottom:8px;margin-bottom:10px;
+}
+.widget-title{
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:1.5px;color:#a5b4fc;
+  display:flex;align-items:center;gap:6px;
+  max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.widget-title::before{
+  content:'';width:6px;height:6px;flex:0 0 6px;
+  background:var(--neon-tai);border-radius:50%;
+  box-shadow:0 0 10px var(--neon-tai);
+}
+.widget-controls span{
+  font-size:13px;cursor:pointer;color:#94a3b8;
+  padding:4px 6px;border-radius:6px;transition:.2s;
+}
+.widget-controls span:hover{background:rgba(255,255,255,0.08);color:#fff}
+.widget-body{display:flex;flex-direction:column;align-items:center;text-align:center}
+.mini-phien{
+  font-family:'Space Grotesk',sans-serif;font-size:11px;
+  color:#94a3b8;font-weight:600;letter-spacing:.5px;margin-bottom:2px;
+}
+.mini-pred{
+  font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;
+  letter-spacing:1px;margin:6px 0;text-transform:uppercase;transition:color .3s;
+}
+.mini-pred.tai{color:var(--neon-tai);text-shadow:0 0 25px rgba(0,242,254,0.5)}
+.mini-pred.xiu{color:var(--neon-xiu);text-shadow:0 0 25px rgba(255,42,109,0.5)}
+.mini-pred.wait{color:#64748b;font-size:18px}
+.mini-details{
+  display:flex;justify-content:space-between;width:100%;
+  font-size:10px;font-family:'Space Grotesk',sans-serif;color:#64748b;
+  margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);
+}
+.mini-details span b{color:#f1f5f9;font-weight:600}
+
+.menu-panel{
+  display:none;position:absolute;top:50px;right:0;width:230px;
+  background:rgba(15,15,26,0.95);border:1px solid rgba(255,255,255,0.15);
+  border-radius:16px;padding:14px;z-index:1000000;
+  backdrop-filter:blur(25px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.8);text-align:left;
+}
+.menu-panel.active{display:block}
+.menu-title{
+  font-family:'Space Grotesk',sans-serif;font-size:10px;color:#a5b4fc;
+  margin-bottom:10px;text-align:center;font-weight:700;letter-spacing:1px;
+  border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:6px;
+}
+.menu-group{
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;font-family:'Space Grotesk',sans-serif;color:#94a3b8;
+}
+.menu-group input[type="color"]{
+  border:none;width:26px;height:26px;border-radius:50%;cursor:pointer;background:none;
+}
+.menu-btn-row{display:flex;gap:6px;margin-top:8px}
+.menu-action-btn{
+  flex:1;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);color:#f1f5f9;
+  padding:7px 0;border-radius:8px;
+  font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;
+  cursor:pointer;text-align:center;transition:.2s;
+}
+.menu-action-btn:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.25)}
+
+.max-mini-widget.minimized{
+  width:48px!important;height:48px!important;border-radius:50%!important;
+  padding:0!important;display:flex!important;align-items:center!important;
+  justify-content:center!important;overflow:hidden!important;
+  transform:none!important;cursor:pointer!important;
+  background:rgba(15,15,26,0.9)!important;
+  border:1px solid var(--neon-tai)!important;
+  box-shadow:0 0 20px rgba(0,242,254,0.4)!important;
+}
+.max-mini-widget.minimized .widget-body,
+.max-mini-widget.minimized .widget-header{display:none!important}
+.max-mini-widget.minimized::after{
+  content:'⚡';font-size:18px;color:var(--neon-tai);
+  text-shadow:0 0 10px var(--neon-tai);
+}
+
+.exit-btn{
+  position:fixed;top:25px;left:25px;width:42px;height:42px;
+  background:rgba(10,10,18,0.75);border:1px solid rgba(255,255,255,0.15);
+  border-radius:50%;color:#f1f5f9;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:999999;backdrop-filter:blur(20px);
+  transition:.25s;text-decoration:none;
+}
+.exit-btn:hover{
+  background:rgba(255,42,109,0.2);
+  border-color:rgba(255,42,109,0.5);transform:scale(1.08);
+}
+
+.change-btn{
+  position:fixed;top:25px;left:78px;height:42px;padding:0 16px;
+  background:rgba(10,10,18,0.75);border:1px solid rgba(255,255,255,0.15);
+  border-radius:999px;color:#f1f5f9;font-size:12px;font-weight:700;
+  display:flex;align-items:center;gap:6px;
+  cursor:pointer;z-index:999999;backdrop-filter:blur(20px);
+  transition:.25s;font-family:inherit;letter-spacing:.5px;
+}
+.change-btn:hover{
+  background:rgba(0,242,254,0.15);
+  border-color:rgba(0,242,254,0.5);transform:scale(1.05);
+}
+</style>
+</head>
+<body>
+
+<a href="/" class="exit-btn" title="Thoát">✕</a>
+<button class="change-btn" onclick="changeUrl()" title="Đổi link game">🔗 Đổi Link</button>
+
+<div class="game-container">
+  <div class="empty-state" id="emptyState" style="display:none">
+    <h2 id="emptyTitle">CHƯA CÓ LINK GAME</h2>
+    <p>Dán link nhà cái vào ô bên dưới. Link sẽ được lưu lại cho lần sau.</p>
+    <input type="text" id="urlInput" placeholder="https://play.nhacai.com" autocomplete="off">
+    <button onclick="saveUrl()">🚀 Mở Game</button>
+    <div class="hint">VD: https://play.max789.vin · https://hitclub.life · https://lc79.bet</div>
+  </div>
+
+  <div class="loading-game" id="loadingGame" style="display:none">
+    <div class="spin"></div>
+    <div>Đang tải game...</div>
+  </div>
+  <iframe id="gameFrame" src="about:blank" allowfullscreen></iframe>
+</div>
+
+<div class="max-mini-widget" id="draggableWidget" onclick="handleWidgetClick(event)">
+  <div class="widget-header">
+    <span class="widget-title" id="widgetTitle">AI TOOL</span>
+    <div class="widget-controls">
+      <span onclick="toggleMenu(event)" title="Cài đặt">☰</span>
+      <span onclick="toggleMinimize(event)" title="Thu gọn">🗕</span>
+    </div>
+  </div>
+
+  <div class="widget-body">
+    <div class="mini-phien" id="miniPhien">#SYNCING</div>
+    <div class="mini-pred wait" id="miniPred">---</div>
+    <div class="mini-details">
+      <span>Độ tin cậy: <b id="miniWr">--%</b></span>
+      <span>Thắng/Thua: <b id="miniStats">0/0</b></span>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="menuPanel">
+    <div class="menu-title">SETTINGS</div>
+    <div class="menu-group">
+      <span>Màu TÀI</span>
+      <input type="color" id="pickerTai" value="#00f2fe" onchange="updateTheme()">
+    </div>
+    <div class="menu-group">
+      <span>Màu XỈU</span>
+      <input type="color" id="pickerXiu" value="#ff2a6d" onchange="updateTheme()">
+    </div>
+    <div class="menu-btn-row">
+      <button class="menu-action-btn" onclick="rotateWidget(event)">🔄 XOAY 90°</button>
+    </div>
+    <div class="menu-btn-row">
+      <button class="menu-action-btn" onclick="scaleWidget(0.1, event)">➕ PHÓNG TO</button>
+      <button class="menu-action-btn" onclick="scaleWidget(-0.1, event)">➖ THU NHỎ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CẤU HÌNH GAME
+// ============================================================
+const GAMES = {
+  '68tx':        { name: '68 Tài Xỉu',        type: 'tx',  url: '' },
+  '789club':     { name: '789Club Tài Xỉu',   type: 'tx',  url: '' },
+  'b52_tx':      { name: 'B52 Tài Xỉu',       type: 'tx',  url: '' },
+  'b52_md5':     { name: 'B52 MD5',           type: 'tx',  url: '' },
+  'betvip_tx':   { name: 'BetVip Tài Xỉu',    type: 'tx',  url: '' },
+  'betvip_md5':  { name: 'BetVip MD5',        type: 'tx',  url: '' },
+  'hitclub_tx':  { name: 'Hitclub Tài Xỉu',   type: 'tx',  url: '' },
+  'hitclub_md5': { name: 'Hitclub MD5',       type: 'tx',  url: '' },
+  'lc79_hu':     { name: 'LC79 Tài Xỉu',      type: 'tx',  url: '' },
+  'lc79_md5':    { name: 'LC79 MD5',          type: 'tx',  url: '' },
+  'luck8_tx':    { name: 'Luck8 Tài Xỉu',     type: 'tx',  url: '' },
+  'luck8_md5':   { name: 'Luck8 MD5',         type: 'tx',  url: '' },
+  'max789_tx':   { name: 'Max789 Tài Xỉu',    type: 'tx',  url: '' },
+  'max789_md5':  { name: 'Max789 MD5',        type: 'tx',  url: '' },
+  'rikvip_hu':   { name: 'Rikvip Tài Xỉu',    type: 'tx',  url: '' },
+  'rikvip_md5':  { name: 'Rikvip MD5',        type: 'tx',  url: '' },
+  'son789_tx':   { name: 'Son789 Tài Xỉu',    type: 'tx',  url: '' },
+  'son789_md5':  { name: 'Son789 MD5',        type: 'tx',  url: '' },
+  'bcr':         { name: 'Baccarat AI',       type: 'bcr', url: '' }
+};
+
+const API_TOOL247 = 'https://api.tool247.fun/api/pred-log';
+const API_BCR     = 'https://jjjjbcrsexxy-1.onrender.com/api/bcrvh11';
+
+// ============================================================
+// PARSE URL
+// ============================================================
+const params  = new URLSearchParams(location.search);
+const gameKey = params.get('game') || 'lc79_hu';
+const gameCfg = GAMES[gameKey] || GAMES['lc79_hu'];
+
+document.title = gameCfg.name + ' · DuydevTool';
+document.getElementById('widgetTitle').textContent = gameCfg.name;
+document.getElementById('emptyTitle').textContent   = gameCfg.name + ' — CHƯA CÓ LINK';
+
+// ============================================================
+// LINK STORAGE
+// ============================================================
+const LS_KEY = 'dv_link_' + gameKey;
+
+function getSavedUrl() {
+  return localStorage.getItem(LS_KEY) || gameCfg.url || '';
+}
+
+function saveUrl() {
+  const input = document.getElementById('urlInput');
+  let url = input.value.trim();
+  if (!url) { alert('Chưa nhập link'); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  localStorage.setItem(LS_KEY, url);
+  loadGame(url);
+}
+
+function changeUrl() {
+  const cur = getSavedUrl();
+  const input = document.getElementById('urlInput');
+  input.value = cur;
+  document.getElementById('gameFrame').src = 'about:blank';
+  document.getElementById('loadingGame').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'flex';
+}
+
+function loadGame(url) {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('loadingGame').style.display = 'flex';
+  document.getElementById('loadingGame').classList.remove('done');
+
+  const f = document.getElementById('gameFrame');
+  f.src = url;
+  f.onload = () => {
+    document.getElementById('loadingGame').classList.add('done');
+  };
+  setTimeout(() => {
+    document.getElementById('loadingGame').classList.add('done');
+  }, 4000);
+}
+
+const savedUrl = getSavedUrl();
+if (savedUrl) loadGame(savedUrl);
+else document.getElementById('emptyState').style.display = 'flex';
+
+// ============================================================
+// WIDGET AI — GỌI API TOOL247 / BCR
+// ============================================================
+let w = 0, l = 0;
+let lastPred = null, lastPhien = null, init = false;
+
+async function fetchPrediction() {
+  const phienEl = document.getElementById('miniPhien');
+  const predEl  = document.getElementById('miniPred');
+  const wrEl    = document.getElementById('miniWr');
+  const statEl  = document.getElementById('miniStats');
+
+  try {
+    if (gameCfg.type === 'tx') {
+      // ==== TÀI XỈU — GỌI TOOL247 ====
+      const url = `${API_TOOL247}?game=${encodeURIComponent(gameKey)}&limit=50&t=${Date.now()}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+
+      const ls = data.lich_su || [];
+      if (!ls.length) { predEl.textContent = 'NO DATA'; predEl.className = 'mini-pred wait'; return; }
+
+      const e0 = ls[0];
+      const phien = e0.phien || '?';
+      const duDoanRaw = String(e0.du_doan || '').toLowerCase();
+      let pred = null;
+      if (duDoanRaw.includes('tài') || duDoanRaw === 't') pred = 'T';
+      else if (duDoanRaw.includes('xỉu') || duDoanRaw === 'x') pred = 'X';
+
+      const conf = parseInt(e0.do_tin_cay) || 0;
+      const kqRaw = String(e0.ket_qua || '').toLowerCase();
+      let actual = null;
+      if (kqRaw.includes('tài') || kqRaw === 't') actual = 'T';
+      else if (kqRaw.includes('xỉu') || kqRaw === 'x') actual = 'X';
+
+      phienEl.textContent = '#' + (parseInt(phien) + 1);
+
+      if (pred) {
+        predEl.textContent = pred === 'T' ? 'TÀI' : 'XỈU';
+        predEl.className = 'mini-pred ' + (pred === 'T' ? 'tai' : 'xiu');
+      } else {
+        predEl.textContent = '---';
+        predEl.className = 'mini-pred wait';
+      }
+
+      // Cập nhật thắng/thua
+      if (init && lastPred && lastPhien && lastPhien !== phien && actual) {
+        if (lastPred === actual) w++; else l++;
+      }
+      lastPhien = phien;
+      lastPred = pred;
+      init = true;
+
+      wrEl.textContent = conf + '%';
+      statEl.textContent = `${w}/${l}`;
+
+    } else if (gameCfg.type === 'bcr') {
+      // ==== BACCARAT — GỌI API BCR ====
+      const res = await fetch(API_BCR, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+
+      const preds = data.predictions || [];
+      if (!preds.length) { predEl.textContent = 'NO DATA'; predEl.className = 'mini-pred wait'; return; }
+
+      // Hiển thị bàn đầu tiên
+      const p0 = preds[0];
+      const duDoanRaw = String(p0.dudoan || '').toUpperCase();
+      const pred = duDoanRaw === 'PLAYER' ? 'T' : (duDoanRaw === 'BANKER' ? 'X' : null);
+      const conf = parseInt(p0.dotincay) || 0;
+
+      phienEl.textContent = `BÀN ${p0.table} · #${p0.phien}`;
+
+      if (pred) {
+        predEl.textContent = pred === 'T' ? 'PLAYER' : 'BANKER';
+        predEl.className = 'mini-pred ' + (pred === 'T' ? 'tai' : 'xiu');
+      } else {
+        predEl.textContent = '---';
+        predEl.className = 'mini-pred wait';
+      }
+
+      wrEl.textContent = conf + '%';
+      statEl.textContent = `${data.tong_ban || 0} bàn`;
+    }
+  } catch (err) {
+    predEl.textContent = 'LỖI API';
+    predEl.className = 'mini-pred wait';
+  }
+}
+
+fetchPrediction();
+setInterval(fetchPrediction, 3000);
+
+// ============================================================
+// UI HANDLERS
+// ============================================================
+function handleWidgetClick(e) {
+  const widget = document.getElementById('draggableWidget');
+  if (widget.classList.contains('minimized')) {
+    widget.classList.remove('minimized');
+    widget.style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+  }
+}
+
+function toggleMenu(e) {
+  e.stopPropagation();
+  document.getElementById('menuPanel').classList.toggle('active');
+}
+
+window.addEventListener('click', function(e) {
+  const menu = document.getElementById('menuPanel');
+  const widget = document.getElementById('draggableWidget');
+  if (!widget.contains(e.target)) menu.classList.remove('active');
+});
+
+function updateTheme() {
+  let t = document.getElementById('pickerTai').value;
+  let x = document.getElementById('pickerXiu').value;
+  document.documentElement.style.setProperty('--neon-tai', t);
+  document.documentElement.style.setProperty('--neon-xiu', x);
+  localStorage.setItem('m_tai', t);
+  localStorage.setItem('m_xiu', x);
+}
+if (localStorage.getItem('m_tai')) {
+  document.getElementById('pickerTai').value = localStorage.getItem('m_tai');
+  document.getElementById('pickerXiu').value = localStorage.getItem('m_xiu');
+  updateTheme();
+}
+
+let currentRotation = 0;
+function rotateWidget(e) {
+  e.stopPropagation();
+  currentRotation = (currentRotation + 90) % 360;
+  document.getElementById('draggableWidget').style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+}
+
+let currentScale = 1;
+function scaleWidget(amount, e) {
+  e.stopPropagation();
+  currentScale += amount;
+  if (currentScale < 0.75) currentScale = 0.75;
+  if (currentScale > 1.35) currentScale = 1.35;
+  document.getElementById('draggableWidget').style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+}
+
+// ============================================================
+// DRAG
+// ============================================================
+const widget = document.getElementById('draggableWidget');
+let isDragging = false;
+let startX, startY, initialX, initialY;
+
+function dragStart(e) {
+  if (widget.classList.contains('minimized')) return;
+  if (e.target.closest('.widget-controls') || e.target.closest('.menu-panel')) return;
+
+  isDragging = true;
+  let clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+  let clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+  initialX = clientX - widget.offsetLeft;
+  initialY = clientY - widget.offsetTop;
+}
+function drag(e) {
+  if (!isDragging) return;
+  e.preventDefault();
+  let clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+  let clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+  widget.style.left = (clientX - initialX) + 'px';
+  widget.style.top  = (clientY - initialY) + 'px';
+  widget.style.right = 'auto';
+  widget.style.bottom = 'auto';
+}
+function dragEnd() { isDragging = false; }
+
+widget.addEventListener('mousedown', dragStart);
+window.addEventListener('mousemove', drag);
+window.addEventListener('mouseup', dragEnd);
+widget.addEventListener('touchstart', dragStart, { passive: false });
+window.addEventListener('touchmove', drag, { passive: false });
+window.addEventListener('touchend', dragEnd);
+
+function toggleMinimize(e) {
+  e.stopPropagation();
+  document.getElementById('menuPanel').classList.remove('active');
+  widget.classList.toggle('minimized');
+  if (!widget.classList.contains('minimized')) {
+    widget.style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+  } else {
+    widget.style.transform = 'none';
+  }
+}
+</script>
+</body>
+</html>
