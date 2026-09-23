@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DuydevTool · Trang chủ</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="/">DuydevTool</a>
+    <div class="nav-links">
+      <a href="/" class="on">Trang chủ</a>
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/tool-tx.html">Tài Xỉu</a>
+      <a href="/tool-bcr.html">Baccarat</a>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center" id="userChip"></div>
+  </div>
+</header>
+
+<div class="wrap" style="padding-top:24px">
+
+  <div class="card" style="background:linear-gradient(135deg,rgba(31,123,255,.15),rgba(56,198,255,.08));border-color:rgba(31,123,255,.3)">
+    <h1 style="font-size:28px;font-weight:900;margin-bottom:8px">🚀 DuydevTool</h1>
+    <p class="muted" style="font-size:14px">Hệ thống AI phân tích dữ liệu thế hệ mới · 18 game Tài Xỉu · 29 bàn Baccarat</p>
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn btn-primary" href="/tool-tx.html">📊 Tool Tài Xỉu</a>
+      <a class="btn" href="/tool-bcr.html">🎰 Tool Baccarat</a>
+    </div>
+  </div>
+
+  <div class="sec-title"><h2>TÍNH NĂNG</h2><i></i></div>
+
+  <div class="grid c3">
+    <div class="gcard">
+      <div class="name">📊 Tool Tài Xỉu</div>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">18 game · 9 nhà cái · dự đoán Tài/Xỉu theo phiên.</p>
+    </div>
+    <div class="gcard">
+      <div class="name">🎰 Tool Baccarat</div>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">29 bàn · dự đoán PLAYER/BANKER · độ tin cậy cao.</p>
+    </div>
+    <div class="gcard">
+      <div class="name">🔑 Key VIP</div>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">Mở khoá toàn bộ tool · nhiều gói · linh hoạt.</p>
+    </div>
+    <div class="gcard">
+      <div class="name">💰 Nạp tiền</div>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">VietQR · tự động · admin duyệt nhanh.</p>
+    </div>
+    <div class="gcard">
+      <div class="name">📜 Lịch sử</div>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">Xem lại toàn bộ giao dịch và dự đoán.</p>
+    </div>
+    <div class="gcard">
+      <div class="name">⚡ Tốc độ cao</div>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">Cập nhật dự đoán mỗi vài giây.</p>
+    </div>
+  </div>
+
+  <div class="card mt-24" style="border-color:rgba(244,166,8,.3);background:rgba(244,166,8,.06)">
+    <p style="color:var(--warn);font-size:13px;line-height:1.7">
+      ⚠️ <b>Lưu ý:</b> Tất cả tool chỉ mang tính chất <b>tham khảo</b>, không đảm bảo thắng.
+      Hãy chơi có trách nhiệm. Không dùng cho mục đích đầu tư sinh lời.
+    </p>
+  </div>
+
+</div>
+
+<script src="/app.js"></script>
+<script>renderUserChip();</script>
+</body>
+</html>
