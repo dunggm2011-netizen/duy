@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đăng ký · DuydevTool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="/aurora.css">
+</head>
+<body class="dark">
+
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:900;letter-spacing:4px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:6px">DUYDEVTOOL</div>
+    <p class="sub">Tạo tài khoản mới</p>
+
+    <div class="alert err" id="err"></div>
+
+    <form id="regForm">
+      <div class="field">
+        <label class="lbl">Tên đăng nhập</label>
+        <input class="inp" name="username" placeholder="Tối thiểu 3 ký tự" required minlength="3">
+      </div>
+      <div class="field">
+        <label class="lbl">Email (không bắt buộc)</label>
+        <input class="inp" type="email" name="email" placeholder="email@example.com">
+      </div>
+      <div class="field">
+        <label class="lbl">Mật khẩu</label>
+        <input class="inp" type="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+      </div>
+      <button class="btn btn-ok btn-lg" type="submit">+ ĐĂNG KÝ</button>
+    </form>
+
+    <p class="muted center mt-16">
+      Đã có tài khoản? <a href="/login.html"><b>Đăng nhập</b></a>
+    </p>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+<script>
+$('#regForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const btn = e.target.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = 'Đang đăng ký...';
+
+  const r = await api('/api/register', {
+    method: 'POST',
+    body: JSON.stringify({
+      username: fd.get('username').trim(),
+      password: fd.get('password'),
+      email: fd.get('email').trim() || null
+    })
+  });
+
+  if (r.ok) {
+    toast('Đăng ký thành công', 'ok');
+    setTimeout(() => location.href = '/login.html', 800);
+  } else {
+    const err = $('#err');
+    err.textContent = r.msg || 'Lỗi đăng ký';
+    err.classList.add('on');
+    btn.disabled = false;
+    btn.textContent = '+ ĐĂNG KÝ';
+  }
+});
+</script>
+</body>
+</html>
