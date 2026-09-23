@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard · DuydevTool</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="/">DuydevTool</a>
+    <div class="nav-links">
+      <a href="/">Trang chủ</a>
+      <a href="/dashboard.html" class="on">Dashboard</a>
+      <a href="/tool-tx.html">Tài Xỉu</a>
+      <a href="/tool-bcr.html">Baccarat</a>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center" id="userChip"></div>
+  </div>
+</header>
+
+<div class="wrap" style="padding-top:24px">
+
+  <div class="stats" id="stats">
+    <div class="stat"><div class="l">Số dư</div><div class="n" id="sBalance">—</div></div>
+    <div class="stat"><div class="l">Trạng thái VIP</div><div class="n" id="sVip">—</div></div>
+    <div class="stat"><div class="l">Hạn VIP</div><div class="n" id="sExpiry" style="font-size:15px">—</div></div>
+    <div class="stat"><div class="l">Giao dịch</div><div class="n" id="sHist">—</div></div>
+  </div>
+
+  <div class="sec-title"><h2>THAO TÁC NHANH</h2><i></i></div>
+
+  <div class="grid c4">
+    <a class="gcard" href="/tool-tx.html">
+      <div class="name">📊 Tool Tài Xỉu</div>
+      <p class="muted" style="font-size:12px;margin-top:4px">18 game</p>
+    </a>
+    <a class="gcard" href="/tool-bcr.html">
+      <div class="name">🎰 Tool Baccarat</div>
+      <p class="muted" style="font-size:12px;margin-top:4px">29 bàn</p>
+    </a>
+    <a class="gcard" href="/key.html">
+      <div class="name">🔑 Kích hoạt Key</div>
+      <p class="muted" style="font-size:12px;margin-top:4px">Nhập key VIP</p>
+    </a>
+    <a class="gcard" href="/nap.html">
+      <div class="name">💰 Nạp tiền</div>
+      <p class="muted" style="font-size:12px;margin-top:4px">VietQR</p>
+    </a>
+  </div>
+
+  <div class="sec-title"><h2>LỊCH SỬ GIAO DỊCH</h2><i></i></div>
+
+  <div class="hist-list" id="histList">
+    <div class="hist-item"><div class="a">Đang tải...</div></div>
+  </div>
+
+  <div class="sec-title"><h2>BẢO MẬT</h2><i></i></div>
+  <div class="card">
+    <button class="btn" onclick="openModal('pwModal')">🔒 Đổi mật khẩu</button>
+  </div>
+
+</div>
+
+<div class="mask" id="pwModal">
+  <div class="modal">
+    <div class="modal-h">
+      <h3>Đổi mật khẩu</h3>
+      <button class="modal-x">✕</button>
+    </div>
+    <div class="modal-b">
+      <div class="alert err" id="pwErr"></div>
+      <div class="field">
+        <label class="lbl">Mật khẩu cũ</label>
+        <input class="inp" type="password" id="pwOld">
+      </div>
+      <div class="field">
+        <label class="lbl">Mật khẩu mới</label>
+        <input class="inp" type="password" id="pwNew" placeholder="Tối thiểu 6 ký tự">
+      </div>
+      <button class="btn btn-primary btn-lg" onclick="doChangePass()">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+<script>
+async function load() {
+  const r = await checkAuth(true);
+  if (!r) return;
+
+  $('#sBalance').textContent = fmtPrice(r.balance);
+  $('#sVip').textContent = r.vip_valid ? '✅ Đã kích hoạt' : '❌ Chưa có';
+  $('#sExpiry').textContent = r.vip_expiry
+    ? new Date(r.vip_expiry * 1000).toLocaleString('vi-VN')
+    : (r.vip_key ? 'Vĩnh viễn' : '—');
+
+  const h = await api('/api/history');
+  const list = $('#histList');
+
+  if (!h.history || !h.history.length) {
+    list.innerHTML = '<div class="hist-item"><div class="a">Chưa có giao dịch</div></div>';
+  } else {
+    list.innerHTML = h.history.map(x => `
+      <div class="hist-item">
+        <div>
+          <div class="a">${x.action}</div>
+          <div class="d">${x.detail}</div>
+        </div>
+        <div class="t">${fmtDate(x.created_at)}</div>
+      </div>
+    `).join('');
+  }
+
+  $('#sHist').textContent = (h.history || []).length;
+}
+
+async function doChangePass() {
+  const oldPass = $('#pwOld').value;
+  const newPass = $('#pwNew').value;
+  if (!oldPass || newPass.length < 6) {
+    $('#pwErr').textContent = 'Kiểm tra lại thông tin';
+    $('#pwErr').classList.add('on');
+    return;
+  }
+  const r = await api('/api/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ oldPass, newPass })
+  });
+  if (r.ok) {
+    toast('Đổi mật khẩu thành công', 'ok');
+    closeModal('pwModal');
+    $('#pwOld').value = '';
+    $('#pwNew').value = '';
+  } else {
+    $('#pwErr').textContent = r.msg || 'Lỗi';
+    $('#pwErr').classList.add('on');
+  }
+}
+
+renderUserChip();
+load();
+</script>
+</body>
+</html>
