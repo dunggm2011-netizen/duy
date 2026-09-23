@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tool Tài Xỉu · DuydevTool</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="/">DuydevTool</a>
+    <div class="nav-links">
+      <a href="/">Trang chủ</a>
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/tool-tx.html" class="on">Tài Xỉu</a>
+      <a href="/tool-bcr.html">Baccarat</a>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center" id="userChip"></div>
+  </div>
+</header>
+
+<div class="wrap" style="padding-top:24px">
+
+  <div class="card mb-16">
+    <div class="grid c2" style="gap:14px">
+      <div class="field" style="margin:0">
+        <label class="lbl">Chọn game</label>
+        <select class="inp" id="gameSel"></select>
+      </div>
+      <div class="field" style="margin:0">
+        <label class="lbl">Số phiên hiển thị</label>
+        <select class="inp" id="limitSel">
+          <option value="20">20</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="fetchPred(true)">🚀 Lấy dự đoán</button>
+      <button class="btn" id="autoBtn" onclick="toggleAuto()">▶ Auto 5s</button>
+      <button class="btn btn-sm" onclick="clearTool()">✕ Xoá</button>
+    </div>
+  </div>
+
+  <div class="card mb-16" id="predBox" style="display:none">
+    <div class="pred-card">
+      <div class="pred-label">Phiên tiếp theo</div>
+      <div class="pred-value" id="predVal">—</div>
+      <div class="pred-conf" id="predConf">0%</div>
+      <div class="pred-detail" id="predCau">—</div>
+      <div class="pred-detail" id="predKq">—</div>
+    </div>
+  </div>
+
+  <div class="sec-title"><h2>LỊCH SỬ PHIÊN</h2><i></i></div>
+
+  <div class="tblwrap">
+    <table id="histTbl">
+      <thead>
+        <tr>
+          <th>Phiên</th>
+          <th>Kết quả</th>
+          <th>Dự đoán</th>
+          <th>Độ tin cậy</th>
+          <th>Loại cầu</th>
+          <th>Kết luận</th>
+        </tr>
+      </thead>
+      <tbody id="histBody">
+        <tr><td colspan="6" class="center muted">Chưa có dữ liệu</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="/app.js"></script>
+<script>
+let autoTimer = null;
+
+async function loadGames() {
+  const r = await api('/api/games');
+  const sel = $('#gameSel');
+  sel.innerHTML = '';
+  Object.entries(r.games || {}).forEach(([k, v]) => {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = v;
+    sel.appendChild(o);
+  });
+}
+
+function toTxt(s) {
+  if (!s) return '?';
+  const v = String(s).toLowerCase();
+  if (v.includes('tài') || v.includes('tai')) return 'TÀI';
+  if (v.includes('xỉu') || v.includes('xiu')) return 'XỈU';
+  return '?';
+}
+
+async function fetchPred(showToast) {
+  const game = $('#gameSel').value;
+  const limit = $('#limitSel').value;
+  if (!game) return;
+
+  const r = await api(`/api/tx?game=${game}&limit=${limit}`);
+  if (r.error) {
+    if (showToast) toast('Lỗi: ' + r.error, 'err');
+    return;
+  }
+
+  const ls = r.lich_su || [];
+  if (!ls.length) {
+    if (showToast) toast('Không có dữ liệu', 'err');
+    return;
+  }
+
+  const e0 = ls[0];
+  const phien = e0.phien || '?';
+  const duDoan = toTxt(e0.du_doan);
+  const conf = e0.do_tin_cay || 0;
+  const kq = toTxt(e0.ket_qua);
+  const cau = e0.loai_cau || '—';
+  const kl = e0.ket_luan || '';
+
+  $('#predBox').style.display = 'block';
+  const valEl = $('#predVal');
+  valEl.textContent = duDoan;
+  valEl.className = 'pred-value ' + (duDoan === 'TÀI' ? 't' : 'x');
+  $('#predConf').textContent = `💯 Độ tin cậy: ${conf}%`;
+  $('#predCau').innerHTML = `📊 <b>Cầu:</b> ${cau}`;
+
+  const klColor = kl.includes('Đúng') ? 'color:var(--ok)' : (kl.includes('Sai') ? 'color:var(--bad)' : '');
+  $('#predKq').innerHTML = `🎯 Phiên #${phien}: <b>${kq}</b> <span style="${klColor}">${kl}</span>`;
+
+  const body = $('#histBody');
+  body.innerHTML = ls.map(x => {
+    const q = toTxt(x.ket_qua);
+    const d = toTxt(x.du_doan);
+    const c = x.do_tin_cay || 0;
+    const l = x.ket_luan || '';
+    const ca = x.loai_cau || '—';
+    const qCls = q === 'TÀI' ? 'p-ok' : (q === 'XỈU' ? 'p-bad' : '');
+    const dCls = d === 'TÀI' ? 'p-ok' : (d === 'XỈU' ? 'p-bad' : '');
+    const kCls = l.includes('Đúng') ? 'p-ok' : (l.includes('Sai') ? 'p-bad' : 'p-wait');
+    return `
+      <tr>
+        <td>#${x.phien || '—'}</td>
+        <td><span class="pill ${qCls}">${q}</span></td>
+        <td><span class="pill ${dCls}">${d}</span></td>
+        <td>${c}%</td>
+        <td>${ca}</td>
+        <td><span class="pill ${kCls}">${l || '—'}</span></td>
+      </tr>
+    `;
+  }).join('');
+
+  if (showToast) toast('Đã cập nhật', 'ok');
+}
+
+function toggleAuto() {
+  if (autoTimer) {
+    clearInterval(autoTimer);
+    autoTimer = null;
+    $('#autoBtn').textContent = '▶ Auto 5s';
+    $('#autoBtn').classList.remove('btn-primary');
+  } else {
+    fetchPred();
+    autoTimer = setInterval(fetchPred, 5000);
+    $('#autoBtn').textContent = '⏸ Đang chạy';
+    $('#autoBtn').classList.add('btn-primary');
+  }
+}
+
+function clearTool() {
+  $('#predBox').style.display = 'none';
+  $('#histBody').innerHTML = '<tr><td colspan="6" class="center muted">Chưa có dữ liệu</td></tr>';
+  if (autoTimer) toggleAuto();
+}
+
+renderUserChip();
+loadGames().then(() => fetchPred());
+</script>
+</body>
+</html>
