@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tool Baccarat · DuydevTool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="/aurora.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="dark">
+
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="/">DUYDEVTOOL</a>
+    <div class="nav-links">
+      <a href="/">Trang chủ</a>
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/tool-tx.html">Tài Xỉu</a>
+      <a href="/tool-bcr.html" class="on">Baccarat</a>
+    </div>
+    <div class="hdr-actions">
+      <div id="userChip" style="display:flex;gap:8px;align-items:center"></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap" style="padding-top:24px">
+
+  <div class="card mb-16">
+    <div class="stats" style="margin:0">
+      <div class="stat"><div class="l">Tổng bàn</div><div class="n" id="sBan">—</div></div>
+      <div class="stat"><div class="l">Dự đoán</div><div class="n" id="sPred">—</div></div>
+      <div class="stat"><div class="l">Tin cậy TB</div><div class="n" id="sConf">—</div></div>
+      <div class="stat"><div class="l">Cập nhật</div><div class="n" id="sTime" style="font-size:12px">—</div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="fetchBcr(true)">🚀 Lấy dữ liệu</button>
+      <button class="btn" id="autoBtn" onclick="toggleAuto()">▶ Auto 10s</button>
+      <div class="field" style="margin:0;flex:1;min-width:180px">
+        <input class="inp" id="searchInput" placeholder="🔍 Tìm bàn..." oninput="renderList()">
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title"><h2>DANH SÁCH BÀN</h2><i></i></div>
+
+  <div class="pred-list" id="bcrList">
+    <div class="card center"><div class="spinner"></div></div>
+  </div>
+
+</div>
+
+<script src="/app.js"></script>
+<script>
+let autoTimer = null;
+let dataCache = [];
+
+async function fetchBcr(showToast) {
+  const r = await api('/api/bcr');
+
+  if (r.code === 'NO_LOGIN') {
+    Swal.fire({
+      title: '🔒 Chưa đăng nhập',
+      text: 'Vui lòng đăng nhập để sử dụng tool.',
+      icon: 'warning',
+      confirmButtonColor: '#1f7bff',
+      confirmButtonText: 'Đăng nhập'
+    }).then(() => location.href = '/login.html');
+    return;
+  }
+  if (r.code === 'NO_VIP' || r.code === 'VIP_EXPIRED') {
+    Swal.fire({
+      title: '🔒 Cần Key VIP',
+      html: r.code === 'VIP_EXPIRED'
+        ? 'Key VIP của bạn đã <b>hết hạn</b>.<br>Vui lòng mua key mới để tiếp tục.'
+        : 'Bạn cần <b>kích hoạt key VIP</b> để sử dụng tool.<br>Vào mục <b>Key VIP</b> để mua.',
+      icon: 'warning',
+      confirmButtonColor: '#1f7bff',
+      confirmButtonText: 'Mua Key ngay',
+      showCancelButton: true,
+      cancelButtonText: 'Quay lại',
+      reverseButtons: true
+    }).then((res) => {
+      if (res.isConfirmed) location.href = '/key.html';
+      else location.href = '/dashboard.html';
+    });
+    return;
+  }
+  if (r.error) {
+    if (showToast) toast('Lỗi: ' + r.error, 'err');
+    return;
+  }
+
+  dataCache = r.predictions || [];
+  $('#sBan').textContent = r.tong_ban || 0;
+  $('#sPred').textContent = r.ban_du_doan_duoc || 0;
+  $('#sConf').textContent = r.do_tin_cay_trung_binh || '—';
+  $('#sTime').textContent = r.time ? new Date(r.time).toLocaleTimeString('vi-VN') : '—';
+
+  renderList();
+  if (showToast) toast('Đã cập nhật ' + dataCache.length + ' bàn', 'ok');
+}
+
+function renderList() {
+  const q = ($('#searchInput').value || '').toLowerCase().trim();
+  const list = $('#bcrList');
+
+  const filtered = dataCache.filter(x => {
+    if (!q) return true;
+    const t = String(x.table || '').toLowerCase();
+    const p = String(x.pattern || '').toLowerCase();
+    const d = String(x.dudoan || '').toLowerCase();
+    return t.includes(q) || p.includes(q) || d.includes(q);
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="card center muted">Không có bàn phù hợp</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(x => {
+    const isP = x.dudoan === 'PLAYER';
+    const cls = isP ? 'p' : 'b';
+    const label = isP ? 'PLAYER' : 'BANKER';
+
+    const hist = (x.result || '').split('').map(c => {
+      const k = c === 'P' ? 'p' : (c === 'B' ? 'b' : 'x');
+      const txt = c === 'P' ? 'P' : (c === 'B' ? 'B' : 'T');
+      return `<span class="${k}">${txt}</span>`;
+    }).join('');
+
+    return `
+      <div class="pred-item">
+        <div>
+          <div class="table-no">BÀN ${x.table} · PHIÊN ${x.phien}</div>
+          <div class="result ${cls}">${label}</div>
+          <div class="pattern">${x.pattern || '—'}</div>
+          <div class="pred-history">${hist}</div>
+          <div class="muted" style="font-size:11.5px;margin-top:6px">${x.giaithich || ''}</div>
+        </div>
+        <div>
+          <div class="confidence">${x.dotincay || '—'}<small>CONF</small></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleAuto() {
+  if (autoTimer) {
+    clearInterval(autoTimer);
+    autoTimer = null;
+    $('#autoBtn').textContent = '▶ Auto 10s';
+    $('#autoBtn').classList.remove('btn-primary');
+  } else {
+    fetchBcr();
+    autoTimer = setInterval(fetchBcr, 10000);
+    $('#autoBtn').textContent = '⏸ Đang chạy';
+    $('#autoBtn').classList.add('btn-primary');
+  }
+}
+
+(async () => {
+  const user = await checkAuth(true);
+  if (!user) { location.href = '/login.html'; return; }
+
+  if (user.role !== 'admin' && !user.vip_valid) {
+    Swal.fire({
+      title: '🔒 Cần Key VIP',
+      html: 'Bạn cần <b>kích hoạt key VIP</b> để sử dụng tool này.<br>Vào mục <b>Key VIP</b> để mua.',
+      icon: 'warning',
+      confirmButtonColor: '#1f7bff',
+      confirmButtonText: 'Mua Key ngay',
+      showCancelButton: true,
+      cancelButtonText: 'Quay lại',
+      reverseButtons: true
+    }).then((r) => {
+      if (r.isConfirmed) location.href = '/key.html';
+      else location.href = '/dashboard.html';
+    });
+    return;
+  }
+
+  renderUserChip();
+  fetchBcr();
+})();
+</script>
+</body>
+</html>
