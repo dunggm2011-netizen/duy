@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · DuydevTool</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="/">DuydevTool</a>
+    <div class="nav-links">
+      <a href="/" >Trang chủ</a>
+      <a href="/admin.html" class="on">Admin</a>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center" id="userChip"></div>
+  </div>
+</header>
+
+<div class="wrap" style="padding-top:24px">
+
+  <div class="stats" id="stats">
+    <div class="stat"><div class="l">Tổng user</div><div class="n" id="sUsers">—</div></div>
+    <div class="stat"><div class="l">Đã duyệt nạp</div><div class="n" id="sBills">—</div></div>
+    <div class="stat"><div class="l">Tổng số dư</div><div class="n" id="sBalance" style="font-size:18px">—</div></div>
+    <div class="stat"><div class="l">Keys</div><div class="n" id="sKeys">—</div></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="on" onclick="switchTab('users', this)">👥 Users</button>
+    <button onclick="switchTab('bills', this)">💰 Bills</button>
+    <button onclick="switchTab('keys', this)">🔑 Keys</button>
+    <button onclick="switchTab('tools', this)">🧰 Công cụ</button>
+  </div>
+
+  <div id="tabUsers" class="tabc">
+    <div class="tblwrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>User</th><th>Email</th><th>Số dư</th><th>VIP</th><th>Ngày tạo</th><th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody"><tr><td colspan="7" class="center muted">Đang tải...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tabBills" class="tabc" style="display:none">
+    <div id="billsList"><div class="card center muted">Đang tải...</div></div>
+  </div>
+
+  <div id="tabKeys" class="tabc" style="display:none">
+    <div class="card mb-16">
+      <h3 style="font-size:15px;font-weight:900;margin-bottom:12px">➕ Tạo key mới</h3>
+      <div class="grid c3" style="gap:12px">
+        <div class="field" style="margin:0">
+          <label class="lbl">Tên gói</label>
+          <input class="inp" id="keyLabel" placeholder="VD: 1 Ngày">
+        </div>
+        <div class="field" style="margin:0">
+          <label class="lbl">Số giờ (bỏ trống = vĩnh viễn)</label>
+          <input class="inp" type="number" id="keyHours" placeholder="24">
+        </div>
+        <div class="field" style="margin:0">
+          <label class="lbl">&nbsp;</label>
+          <button class="btn btn-primary btn-lg" onclick="genKey()">Tạo key</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tblwrap">
+      <table>
+        <thead>
+          <tr><th>Key</th><th>Gói</th><th>Giờ</th><th>Đã dùng</th><th>Ngày tạo</th></tr>
+        </thead>
+        <tbody id="keysBody"><tr><td colspan="5" class="center muted">Đang tải...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tabTools" class="tabc" style="display:none">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:900;margin-bottom:12px">🧰 Công cụ nhanh</h3>
+      <div class="grid c2" style="gap:12px">
+        <button class="btn" onclick="location.href='/tool-tx.html'">📊 Xem Tool Tài Xỉu</button>
+        <button class="btn" onclick="location.href='/tool-bcr.html'">🎰 Xem Tool Baccarat</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="mask" id="addBalModal">
+  <div class="modal">
+    <div class="modal-h">
+      <h3>Cộng/Trừ tiền</h3>
+      <button class="modal-x">✕</button>
+    </div>
+    <div class="modal-b">
+      <input type="hidden" id="balUserId">
+      <div class="field">
+        <label class="lbl">User</label>
+        <input class="inp" id="balUser" disabled>
+      </div>
+      <div class="field">
+        <label class="lbl">Số tiền</label>
+        <input class="inp" type="number" id="balAmount" placeholder="100000">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ok" style="flex:1" onclick="doAddBal()">+ Cộng</button>
+        <button class="btn btn-bad" style="flex:1" onclick="doSubBal()">− Trừ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+<script>
+async function loadStats() {
+  const r = await api('/api/admin/stats');
+  if (!r.ok && r.error) return;
+  $('#sUsers').textContent = r.totalUsers ?? '—';
+  $('#sBills').textContent = r.totalBills ?? '—';
+  $('#sBalance').textContent = fmtPrice(r.totalBalance || 0);
+  $('#sKeys').textContent = (r.totalKeys || 0) + ' / ' + (r.usedKeys || 0);
+}
+
+async function loadUsers() {
+  const r = await api('/api/admin/users');
+  if (!r.users) return;
+  const body = $('#usersBody');
+  if (!r.users.length) {
+    body.innerHTML = '<tr><td colspan="7" class="center muted">Chưa có user</td></tr>';
+    return;
+  }
+  body.innerHTML = r.users.map(u => `
+    <tr>
+      <td>${u.id}</td>
+      <td>${u.username}${u.role === 'admin' ? ' 👑' : ''}</td>
+      <td>${u.email || '—'}</td>
+      <td>${fmtPrice(u.balance || 0)}</td>
+      <td>${u.vip_key ? '✅' : '—'}</td>
+      <td>${fmtDate(u.created_at)}</td>
+      <td>
+        <button class="btn btn-sm" onclick="openBal(${u.id}, '${u.username}', ${u.balance})">💰</button>
+        ${u.role !== 'admin' ? `<button class="btn btn-sm btn-bad" onclick="delUser(${u.id})">🗑</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadBills() {
+  const r = await api('/api/admin/bills');
+  const list = $('#billsList');
+  if (!r.bills || !r.bills.length) {
+    list.innerHTML = '<div class="card center muted">Không có bill chờ duyệt</div>';
+    return;
+  }
+  list.innerHTML = r.bills.map(b => `
+    <div class="card mb-16">
+      <div class="grid c2" style="gap:14px;align-items:center">
+        <div>
+          <div style="font-weight:900;font-size:15px">Bill #${b.id} · ${b.username || 'user#' + b.user_id}</div>
+          <div class="muted" style="margin-top:4px">💰 ${fmtPrice(b.amount)} · Mã: ${b.code}</div>
+          <div class="muted">🕐 ${fmtDate(b.created_at)}</div>
+        </div>
+        <div style="text-align:right">
+          <a href="/uploads/${b.image}" target="_blank" class="btn btn-sm">🖼 Xem bill</a>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn btn-ok" style="flex:1" onclick="approveBill(${b.id}, 'ok')">✅ Duyệt</button>
+        <button class="btn btn-bad" style="flex:1" onclick="approveBill(${b.id}, 'no')">❌ Từ chối</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadKeys() {
+  const r = await api('/api/admin/keys');
+  const body = $('#keysBody');
+  if (!r.keys || !r.keys.length) {
+    body.innerHTML = '<tr><td colspan="5" class="center muted">Chưa có key</td></tr>';
+    return;
+  }
+  body.innerHTML = r.keys.map(k => `
+    <tr>
+      <td><code>${k.key}</code></td>
+      <td>${k.label || '—'}</td>
+      <td>${k.hours ?? '∞'}</td>
+      <td>${k.used_by ? '✅ user#' + k.used_by : '⬜'}</td>
+      <td>${fmtDate(k.created_at)}</td>
+    </tr>
+  `).join('');
+}
+
+function openBal(id, user, bal) {
+  $('#balUserId').value = id;
+  $('#balUser').value = user + ' (' + fmtPrice(bal) + ')';
+  $('#balAmount').value = '';
+  openModal('addBalModal');
+}
+
+async function doAddBal() {
+  const userId = parseInt($('#balUserId').value);
+  const amount = parseInt($('#balAmount').value);
+  if (!amount || amount <= 0) return;
+  await api('/api/admin/addbalance', { method: 'POST', body: JSON.stringify({ userId, amount }) });
+  toast('Đã cộng tiền', 'ok');
+  closeModal('addBalModal');
+  loadUsers();
+}
+
+async function doSubBal() {
+  const userId = parseInt($('#balUserId').value);
+  const amount = parseInt($('#balAmount').value);
+  if (!amount || amount <= 0) return;
+  await api('/api/admin/subbalance', { method: 'POST', body: JSON.stringify({ userId, amount }) });
+  toast('Đã trừ tiền', 'ok');
+  closeModal('addBalModal');
+  loadUsers();
+}
+
+async function delUser(id) {
+  if (!confirm('Xoá user này?')) return;
+  await api('/api/admin/deleteuser', { method: 'POST', body: JSON.stringify({ userId: id }) });
+  toast('Đã xoá', 'ok');
+  loadUsers();
+}
+
+async function approveBill(billId, action) {
+  await api('/api/admin/bill/approve', { method: 'POST', body: JSON.stringify({ billId, action }) });
+  toast(action === 'ok' ? 'Đã duyệt' : 'Đã từ chối', 'ok');
+  loadBills();
+}
+
+async function genKey() {
+  const label = $('#keyLabel').value.trim() || 'Admin tạo';
+  const hours = parseInt($('#keyHours').value) || null;
+  const r = await api('/api/admin/genkey', { method: 'POST', body: JSON.stringify({ label, hours }) });
+  if (r.ok) {
+    toast('Đã tạo: ' + r.key, 'ok');
+    navigator.clipboard?.writeText(r.key);
+    loadKeys();
+  }
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.tabc').forEach(c => c.style.display = 'none');
+  $('#tab' + name.charAt(0).toUpperCase() + name.slice(1)).style.display = 'block';
+
+  if (name === 'users') loadUsers();
+  if (name === 'bills') loadBills();
+  if (name === 'keys') loadKeys();
+}
+
+async function init() {
+  const r = await checkAuth(true);
+  if (!r || r.role !== 'admin') {
+    alert('Bạn không có quyền admin');
+    location.href = '/dashboard.html';
+    return;
+  }
+  loadStats();
+  loadUsers();
+}
+init();
+</script>
+</body>
+</html>
