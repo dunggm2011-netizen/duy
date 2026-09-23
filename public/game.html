@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Tool Dự Đoán · DuydevTool</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+:root{
+  --neon-tai:#00f2fe;
+  --neon-xiu:#ff2a6d;
+  --glass-bg:rgba(10,10,18,0.75);
+  --glass-border:rgba(255,255,255,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body,html{width:100%;height:100%;overflow:hidden;background:#030308;font-family:'Plus Jakarta Sans',sans-serif}
+
+.game-frame{position:absolute;top:0;left:0;width:100%;height:100%;border:none;z-index:1;background:#030308}
+
+/* ============ ENTRY FORM (nhập link cho BCR) ============ */
+.entry-form{
+  position:fixed;inset:0;background:#030308;z-index:9000;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;color:#94a3b8;
+}
+.entry-form.on{display:flex}
+.entry-form h1{
+  font-family:'Space Grotesk',sans-serif;color:#fff;
+  font-size:22px;letter-spacing:2px;margin-bottom:10px;
+  text-shadow:0 0 20px rgba(0,242,254,.5);
+}
+.entry-form p{font-size:13px;max-width:440px;line-height:1.6;margin-bottom:20px}
+.entry-form .input-row{
+  display:flex;gap:10px;width:100%;max-width:520px;
+}
+.entry-form input{
+  flex:1;padding:14px 18px;border-radius:14px;
+  background:rgba(15,15,26,.9);
+  border:1px solid rgba(0,242,254,.4);
+  color:#fff;font-size:14px;font-family:inherit;
+  outline:none;transition:.25s;
+}
+.entry-form input:focus{
+  border-color:#00f2fe;
+  box-shadow:0 0 0 4px rgba(0,242,254,.15);
+}
+.entry-form button{
+  padding:14px 24px;border-radius:14px;
+  background:linear-gradient(135deg,#00f2fe,#0072ff);
+  color:#fff;font-weight:800;font-size:14px;
+  border:none;cursor:pointer;font-family:inherit;
+  white-space:nowrap;transition:.25s;
+  box-shadow:0 8px 24px -8px rgba(0,242,254,.7);
+}
+.entry-form button:hover{transform:translateY(-2px);box-shadow:0 12px 32px -8px rgba(0,242,254,.9)}
+.entry-form .hint{font-size:11.5px;color:#64748b;margin-top:14px}
+
+/* ============ MINI TOOL BUTTON + MENU ============ */
+.mini-tool-container{position:fixed;top:20px;left:20px;z-index:999999}
+.mini-tool-btn{
+  width:65px;height:65px;border-radius:50%;
+  border:2px solid #ffd700;
+  box-shadow:0 0 15px rgba(255,215,0,.8);
+  cursor:pointer;user-select:none;
+  animation:pulseGlow 1.5s infinite alternate;
+  background:radial-gradient(circle,#ff007f 0%,#7b00ff 100%);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  color:#fff;font-weight:900;font-size:10px;text-shadow:0 0 4px #000;
+}
+@keyframes pulseGlow{
+  0%{transform:scale(1);box-shadow:0 0 8px #ffd700}
+  100%{transform:scale(1.08);box-shadow:0 0 18px #ff007f}
+}
+.game-menu{
+  display:none;position:absolute;top:75px;left:0;
+  background:rgba(10,5,20,.95);border:2px solid #00ffff;
+  border-radius:12px;padding:10px;width:180px;
+  max-height:340px;overflow-y:auto;
+  box-shadow:0 0 15px rgba(0,255,255,.4);
+  flex-direction:column;gap:6px;backdrop-filter:blur(5px);
+}
+.game-menu.show{display:flex}
+.menu-title{
+  color:#ffd700;font-size:11px;font-weight:bold;text-align:center;
+  text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.2);
+  padding-bottom:4px;position:sticky;top:0;
+  background:rgba(10,5,20,.95);z-index:2;
+}
+.table-btn{
+  background:linear-gradient(135deg,#2b0938,#4a1259);
+  color:#fff;border:1px solid #ff007f;border-radius:6px;
+  padding:8px 10px;font-size:11px;font-weight:bold;
+  cursor:pointer;text-align:left;transition:.2s;
+}
+.table-btn:hover{background:linear-gradient(135deg,#4a1259,#6b1a7a)}
+.table-btn.active{
+  background:linear-gradient(135deg,#ff007f,#7b00ff);
+  border-color:#00ffff;box-shadow:0 0 8px #ff007f;
+}
+
+/* ============ WIDGET (dùng chung TX + BCR) ============ */
+.max-mini-widget{
+  position:fixed;top:25px;right:25px;width:260px;
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  border-radius:20px;padding:14px;color:#fff;z-index:99999;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 20px 40px rgba(0,0,0,.6),inset 0 1px 1px rgba(255,255,255,.2);
+  user-select:none;touch-action:none;cursor:grab;
+  transform-origin:center center;
+  transition:transform .3s,width .25s,height .25s,padding .25s;
+}
+.max-mini-widget:active{cursor:grabbing}
+.widget-header{
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding-bottom:8px;margin-bottom:10px;
+}
+.widget-title{
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:1.5px;color:#a5b4fc;
+  display:flex;align-items:center;gap:6px;
+  max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.widget-title::before{
+  content:'';width:6px;height:6px;flex:0 0 6px;
+  background:var(--neon-tai);border-radius:50%;
+  box-shadow:0 0 10px var(--neon-tai);
+}
+.widget-controls span{
+  font-size:13px;cursor:pointer;color:#94a3b8;
+  padding:4px 6px;border-radius:6px;transition:.2s;
+}
+.widget-controls span:hover{background:rgba(255,255,255,.08);color:#fff}
+.widget-body{display:flex;flex-direction:column;align-items:center;text-align:center}
+.mini-phien{
+  font-family:'Space Grotesk',sans-serif;font-size:11px;
+  color:#94a3b8;font-weight:600;letter-spacing:.5px;margin-bottom:2px;
+}
+.mini-pred{
+  font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;
+  letter-spacing:1px;margin:6px 0;text-transform:uppercase;transition:.3s;
+}
+.mini-pred.tai{color:var(--neon-tai);text-shadow:0 0 25px rgba(0,242,254,.5)}
+.mini-pred.xiu{color:var(--neon-xiu);text-shadow:0 0 25px rgba(255,42,109,.5)}
+.mini-pred.wait{color:#64748b;font-size:16px}
+.mini-details{
+  display:flex;justify-content:space-between;width:100%;
+  font-size:10px;font-family:'Space Grotesk',sans-serif;color:#64748b;
+  margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);
+}
+.mini-details span b{color:#f1f5f9;font-weight:600}
+
+.menu-panel{
+  display:none;position:absolute;top:50px;right:0;width:230px;
+  background:rgba(15,15,26,.95);border:1px solid rgba(255,255,255,.15);
+  border-radius:16px;padding:14px;z-index:1000000;
+  backdrop-filter:blur(25px);
+  box-shadow:0 15px 35px rgba(0,0,0,.8);text-align:left;
+}
+.menu-panel.active{display:block}
+.menu-title-2{
+  font-family:'Space Grotesk',sans-serif;font-size:10px;color:#a5b4fc;
+  margin-bottom:10px;text-align:center;font-weight:700;letter-spacing:1px;
+  border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:6px;
+}
+.menu-group{
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;font-family:'Space Grotesk',sans-serif;color:#94a3b8;
+}
+.menu-group input[type="color"]{
+  border:none;width:26px;height:26px;border-radius:50%;cursor:pointer;background:none;
+}
+.menu-btn-row{display:flex;gap:6px;margin-top:8px}
+.menu-action-btn{
+  flex:1;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);color:#f1f5f9;
+  padding:7px 0;border-radius:8px;
+  font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:600;
+  cursor:pointer;text-align:center;transition:.2s;
+}
+.menu-action-btn:hover{background:rgba(255,255,255,.12)}
+
+.max-mini-widget.minimized{
+  width:48px!important;height:48px!important;border-radius:50%!important;
+  padding:0!important;display:flex!important;align-items:center!important;
+  justify-content:center!important;overflow:hidden!important;
+  transform:none!important;cursor:pointer!important;
+  background:rgba(15,15,26,.9)!important;
+  border:1px solid var(--neon-tai)!important;
+  box-shadow:0 0 20px rgba(0,242,254,.4)!important;
+}
+.max-mini-widget.minimized .widget-body,
+.max-mini-widget.minimized .widget-header{display:none!important}
+.max-mini-widget.minimized::after{
+  content:'⚡';font-size:18px;color:var(--neon-tai);
+  text-shadow:0 0 10px var(--neon-tai);
+}
+
+.exit-btn{
+  position:fixed;top:25px;left:100px;width:42px;height:42px;
+  background:rgba(10,10,18,.75);border:1px solid rgba(255,255,255,.15);
+  border-radius:50%;color:#f1f5f9;font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:999999;backdrop-filter:blur(20px);
+  transition:.25s;text-decoration:none;
+}
+.exit-btn:hover{background:rgba(255,42,109,.2);border-color:rgba(255,42,109,.5);transform:scale(1.08)}
+
+.reload-btn{
+  position:fixed;top:25px;left:152px;height:42px;padding:0 16px;
+  background:rgba(10,10,18,.75);border:1px solid rgba(255,255,255,.15);
+  border-radius:999px;color:#f1f5f9;font-size:12px;font-weight:700;
+  display:flex;align-items:center;gap:6px;
+  cursor:pointer;z-index:999999;backdrop-filter:blur(20px);
+  transition:.25s;font-family:inherit;letter-spacing:.5px;
+}
+.reload-btn:hover{background:rgba(0,242,254,.15);border-color:rgba(0,242,254,.5);transform:scale(1.05)}
+</style>
+</head>
+<body>
+
+<iframe class="game-frame" id="gameFrame" src="about:blank" allowfullscreen></iframe>
+
+<a href="/" class="exit-btn" title="Thoát">✕</a>
+<button class="reload-btn" onclick="reloadGame()" id="reloadBtn" style="display:none">⟳ Tải lại</button>
+
+<!-- Nút chọn bàn (chỉ hiện với BCR) -->
+<div class="mini-tool-container" id="miniToolWrap" style="display:none">
+  <div class="mini-tool-btn" id="miniToolBtn">CHỌN<br>BÀN</div>
+  <div class="game-menu" id="gameMenu">
+    <div class="menu-title">Danh Sách Bàn</div>
+    <div id="tableListContainer" style="display:flex;flex-direction:column;gap:5px"></div>
+  </div>
+</div>
+
+<!-- Form nhập link (chỉ hiện với BCR) -->
+<div class="entry-form" id="entryForm">
+  <h1 id="entryTitle">BACCARAT AI</h1>
+  <p>Dán link cổng game Baccarat bạn muốn chơi. Link sẽ <b>KHÔNG</b> được lưu lại — mỗi lần vào phải nhập lại.</p>
+  <div class="input-row">
+    <input type="text" id="linkInput" placeholder="https://cm885.net" autocomplete="off">
+    <button onclick="openBcrGame()">🚀 Mở</button>
+  </div>
+  <div class="hint">VD: https://cm885.net · https://sexygame.xxx · https://jun88.xxx</div>
+</div>
+
+<!-- Widget AI -->
+<div class="max-mini-widget" id="draggableWidget" onclick="handleWidgetClick(event)" style="display:none">
+  <div class="widget-header">
+    <span class="widget-title" id="widgetTitle">AI TOOL</span>
+    <div class="widget-controls">
+      <span onclick="toggleMenu(event)" title="Cài đặt">☰</span>
+      <span onclick="toggleMinimize(event)" title="Thu gọn">🗕</span>
+    </div>
+  </div>
+
+  <div class="widget-body">
+    <div class="mini-phien" id="miniPhien">#SYNCING</div>
+    <div class="mini-pred wait" id="miniPred">---</div>
+    <div class="mini-details">
+      <span>Độ tin cậy: <b id="miniWr">--%</b></span>
+      <span>Thắng/Thua: <b id="miniStats">0/0</b></span>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="menuPanel">
+    <div class="menu-title-2">SETTINGS</div>
+    <div class="menu-group">
+      <span>Màu TÀI</span>
+      <input type="color" id="pickerTai" value="#00f2fe" onchange="updateTheme()">
+    </div>
+    <div class="menu-group">
+      <span>Màu XỈU</span>
+      <input type="color" id="pickerXiu" value="#ff2a6d" onchange="updateTheme()">
+    </div>
+    <div class="menu-btn-row">
+      <button class="menu-action-btn" onclick="rotateWidget(event)">🔄 XOAY 90°</button>
+    </div>
+    <div class="menu-btn-row">
+      <button class="menu-action-btn" onclick="scaleWidget(0.1, event)">➕ PHÓNG TO</button>
+      <button class="menu-action-btn" onclick="scaleWidget(-0.1, event)">➖ THU NHỎ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG GAME — LINK NHÀ CÁI CỐ ĐỊNH
+// ============================================================
+const GAMES = {
+  // ===== TÀI XỈU — LINK CỐ ĐỊNH =====
+  '68tx':        { name: '68 Tài Xỉu',        type: 'tx', url: 'https://68gb2027.art/?code=23669308' },
+  '789club':     { name: '789Club Tài Xỉu',   type: 'tx', url: 'https://play.789club.nrw/?affId=aac7200d6c8b6fb635f46be8c4274fc5&utm_source=na&utm_campaign=seo&referrer_domain=789clubb.info' },
+  'b52_tx':      { name: 'B52 Tài Xỉu',       type: 'tx', url: 'https://play.b52.kn/?a=f1a2f88cce3c7c4760551898677286de&utm_campaign=seo&utm_source=brand-g_gameb52aclub&utm_medium=button_dkdn_button_na&referrer_domain=growbusiness.io&app_id=b52.club' },
+  'b52_md5':     { name: 'B52 MD5',           type: 'tx', url: 'https://play.b52.kn/?a=f1a2f88cce3c7c4760551898677286de&utm_campaign=seo&utm_source=brand-g_gameb52aclub&utm_medium=button_dkdn_button_na&referrer_domain=growbusiness.io&app_id=b52.club' },
+  'betvip_tx':   { name: 'BetVip Tài Xỉu',    type: 'tx', url: 'https://play.betvip.hot' },
+  'betvip_md5':  { name: 'BetVip MD5',        type: 'tx', url: 'https://play.betvip.hot' },
+  'hitclub_tx':  { name: 'Hitclub Tài Xỉu',   type: 'tx', url: 'https://v-hitclub.glass/?Affid=hitclub' },
+  'hitclub_md5': { name: 'Hitclub MD5',       type: 'tx', url: 'https://v-hitclub.glass/?Affid=hitclub' },
+  'lc79_hu':     { name: 'LC79 Tài Xỉu',      type: 'tx', url: 'https://lc79.fun' },
+  'lc79_md5':    { name: 'LC79 MD5',          type: 'tx', url: 'https://lc79.fun' },
+  'luck8_tx':    { name: 'Luck8 Tài Xỉu',     type: 'tx', url: 'https://playful.uk2uk2.com/mobile/?inviteCode=7925113#/login?type=register' },
+  'luck8_md5':   { name: 'Luck8 MD5',         type: 'tx', url: 'https://playful.uk2uk2.com/mobile/?inviteCode=7925113#/login?type=register' },
+  'max789_tx':   { name: 'Max789 Tài Xỉu',    type: 'tx', url: 'https://play.max789.vip' },
+  'max789_md5':  { name: 'Max789 MD5',        type: 'tx', url: 'https://play.max789.vip' },
+  'rikvip_hu':   { name: 'Rikvip Tài Xỉu',    type: 'tx', url: 'https://play.rikvip.direct/?a=a0d049c9a8684765fb4afe07f7444a8e&utm_campaign=seo&utm_source=brand-g_rikvip97art&utm_medium=banner_fullsite_na' },
+  'rikvip_md5':  { name: 'Rikvip MD5',        type: 'tx', url: 'https://play.rikvip.direct/?a=a0d049c9a8684765fb4afe07f7444a8e&utm_campaign=seo&utm_source=brand-g_rikvip97art&utm_medium=banner_fullsite_na' },
+  'son789_tx':   { name: 'Son789 Tài Xỉu',    type: 'tx', url: 'https://play.son789.site' },
+  'son789_md5':  { name: 'Son789 MD5',        type: 'tx', url: 'https://play.son789.site' },
+
+  // ===== BACCARAT — USER TỰ NHẬP LINK =====
+  'bcr':         { name: 'Baccarat AI',       type: 'bcr', url: '' }
+};
+
+const API_TOOL247 = 'https://api.tool247.fun/api/pred-log';
+const API_BCR     = 'https://jjjjbcrsexxy-1.onrender.com/api/bcrvh11';
+
+// ============================================================
+// PARSE URL + CHECK AUTH/VIP
+// ============================================================
+const params  = new URLSearchParams(location.search);
+const gameKey = params.get('game') || 'lc79_hu';
+const gameCfg = GAMES[gameKey] || GAMES['lc79_hu'];
+
+document.title = gameCfg.name + ' · DuydevTool';
+document.getElementById('widgetTitle').textContent = gameCfg.name;
+document.getElementById('entryTitle').textContent  = gameCfg.name;
+
+// ============================================================
+// CHECK LOGIN + VIP
+// ============================================================
+async function checkAccess() {
+  try {
+    const r = await fetch('/api/me', { credentials: 'same-origin' });
+    const data = await r.json();
+    if (!data.ok) {
+      // Chưa login
+      Swal.fire({
+        title: '🔒 Chưa đăng nhập',
+        text: 'Vui lòng đăng nhập để sử dụng tool.',
+        icon: 'warning',
+        confirmButtonColor: '#1f7bff',
+        confirmButtonText: 'Đăng nhập'
+      }).then(() => location.href = '/login.html');
+      return false;
+    }
+    const user = data.user;
+    if (user.role !== 'admin' && !user.vip_valid) {
+      Swal.fire({
+        title: '🔒 Cần Key VIP',
+        html: 'Bạn cần <b>kích hoạt key VIP</b> để sử dụng tool.<br>Vào mục <b>Key VIP</b> để mua.',
+        icon: 'warning',
+        confirmButtonColor: '#1f7bff',
+        confirmButtonText: 'Mua Key ngay',
+        showCancelButton: true,
+        cancelButtonText: 'Quay lại',
+        reverseButtons: true
+      }).then((res) => {
+        if (res.isConfirmed) location.href = '/key.html';
+        else location.href = '/dashboard.html';
+      });
+      return false;
+    }
+    return true;
+  } catch (e) {
+    Swal.fire({
+      title: 'Lỗi',
+      text: 'Không kết nối được server',
+      icon: 'error',
+      confirmButtonText: 'Về trang chủ'
+    }).then(() => location.href = '/');
+    return false;
+  }
+}
+
+// ============================================================
+// INIT GAME
+// ============================================================
+let bcrSelectedBan = null;
+
+async function init() {
+  const ok = await checkAccess();
+  if (!ok) return;
+
+  if (gameCfg.type === 'tx') {
+    // === TÀI XỈU: load link cố định ===
+    loadGame(gameCfg.url);
+    document.getElementById('draggableWidget').style.display = 'block';
+    startTxPolling();
+  } else if (gameCfg.type === 'bcr') {
+    // === BACCARAT: hiện form nhập link ===
+    document.getElementById('entryForm').classList.add('on');
+    document.getElementById('miniToolWrap').style.display = 'block';
+    buildTableMenu();
+  }
+}
+
+function loadGame(url) {
+  const f = document.getElementById('gameFrame');
+  f.src = url;
+  document.getElementById('reloadBtn').style.display = 'flex';
+}
+
+function reloadGame() {
+  const f = document.getElementById('gameFrame');
+  if (f.src && f.src !== 'about:blank') f.src = f.src;
+}
+
+// ============================================================
+// BACCARAT — NHẬP LINK
+// ============================================================
+function openBcrGame() {
+  const input = document.getElementById('linkInput');
+  let url = input.value.trim();
+  if (!url) { alert('Chưa nhập link'); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  // Ẩn form
+  document.getElementById('entryForm').classList.remove('on');
+
+  // Load iframe
+  loadGame(url);
+
+  // Hiện widget
+  document.getElementById('draggableWidget').style.display = 'block';
+
+  // Bắt đầu polling BCR
+  startBcrPolling();
+}
+
+// ============================================================
+// BUILD MENU CHỌN BÀN BCR
+// ============================================================
+function buildTableMenu() {
+  const box = document.getElementById('tableListContainer');
+  box.innerHTML = '';
+  for (let i = 1; i <= 29; i++) {
+    const key = 'BAN' + (i < 10 ? '0' + i : i);
+    const b = document.createElement('button');
+    b.className = 'table-btn';
+    b.id = 'btn-' + key;
+    b.textContent = 'BÀN ' + (i < 10 ? '0' + i : i);
+    b.onclick = () => selectBcrBan(key);
+    box.appendChild(b);
+  }
+}
+
+function selectBcrBan(banKey) {
+  bcrSelectedBan = banKey;
+  document.querySelectorAll('.table-btn').forEach(el => el.classList.remove('active'));
+  const btn = document.getElementById('btn-' + banKey);
+  if (btn) btn.classList.add('active');
+  document.getElementById('gameMenu').classList.remove('show');
+}
+
+// Menu toggle
+document.getElementById('miniToolBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('gameMenu').classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+  const btn = document.getElementById('miniToolBtn');
+  const menu = document.getElementById('gameMenu');
+  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+    menu.classList.remove('show');
+  }
+});
+
+// ============================================================
+// POLLING TÀI XỈU (tool247)
+// ============================================================
+let txTimer = null;
+let txW = 0, txL = 0, txLastPred = null, txLastPhien = null, txInit = false;
+
+function startTxPolling() {
+  fetchTxPred();
+  txTimer = setInterval(fetchTxPred, 3000);
+}
+
+async function fetchTxPred() {
+  const phienEl = document.getElementById('miniPhien');
+  const predEl  = document.getElementById('miniPred');
+  const wrEl    = document.getElementById('miniWr');
+  const statEl  = document.getElementById('miniStats');
+
+  try {
+    const url = `${API_TOOL247}?game=${encodeURIComponent(gameKey)}&limit=50&t=${Date.now()}`;
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+
+    const ls = data.lich_su || [];
+    if (!ls.length) { predEl.textContent = 'NO DATA'; predEl.className = 'mini-pred wait'; return; }
+
+    const e0 = ls[0];
+    const phien = e0.phien || '?';
+    const duDoanRaw = String(e0.du_doan || '').toLowerCase();
+    let pred = null;
+    if (duDoanRaw.includes('tài') || duDoanRaw === 't') pred = 'T';
+    else if (duDoanRaw.includes('xỉu') || duDoanRaw === 'x') pred = 'X';
+
+    const conf = parseInt(e0.do_tin_cay) || 0;
+    const kqRaw = String(e0.ket_qua || '').toLowerCase();
+    let actual = null;
+    if (kqRaw.includes('tài') || kqRaw === 't') actual = 'T';
+    else if (kqRaw.includes('xỉu') || kqRaw === 'x') actual = 'X';
+
+    phienEl.textContent = '#' + (parseInt(phien) + 1);
+
+    if (pred) {
+      predEl.textContent = pred === 'T' ? 'TÀI' : 'XỈU';
+      predEl.className = 'mini-pred ' + (pred === 'T' ? 'tai' : 'xiu');
+    } else {
+      predEl.textContent = '---';
+      predEl.className = 'mini-pred wait';
+    }
+
+    if (txInit && txLastPred && txLastPhien && txLastPhien !== phien && actual) {
+      if (txLastPred === actual) txW++; else txL++;
+    }
+    txLastPhien = phien;
+    txLastPred = pred;
+    txInit = true;
+
+    wrEl.textContent = conf + '%';
+    statEl.textContent = `${txW}/${txL}`;
+  } catch (e) {
+    predEl.textContent = 'LỖI API';
+    predEl.className = 'mini-pred wait';
+  }
+}
+
+// ============================================================
+// POLLING BACCARAT
+// ============================================================
+let bcrTimer = null;
+
+function startBcrPolling() {
+  fetchBcrPred();
+  bcrTimer = setInterval(fetchBcrPred, 3500);
+}
+
+async function fetchBcrPred() {
+  const phienEl = document.getElementById('miniPhien');
+  const predEl  = document.getElementById('miniPred');
+  const wrEl    = document.getElementById('miniWr');
+  const statEl  = document.getElementById('miniStats');
+
+  if (!bcrSelectedBan) {
+    phienEl.textContent = '#CHỌN BÀN';
+    predEl.textContent = '---';
+    predEl.className = 'mini-pred wait';
+    wrEl.textContent = '--%';
+    statEl.textContent = '--';
+    return;
+  }
+
+  try {
+    const r = await fetch(API_BCR, { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+
+    const preds = data.predictions || [];
+    // Tìm bàn tương ứng: BAN01 → table "1" hoặc "C01" hoặc "01"
+    const num = parseInt(bcrSelectedBan.replace('BAN', ''));
+    const found = preds.find(p => {
+      const t = String(p.table || '').toUpperCase();
+      return t === String(num) || t === 'C' + (num < 10 ? '0' + num : num) || t === String(num).padStart(2, '0');
+    });
+
+    if (!found) {
+      phienEl.textContent = bcrSelectedBan;
+      predEl.textContent = 'NO DATA';
+      predEl.className = 'mini-pred wait';
+      return;
+    }
+
+    phienEl.textContent = bcrSelectedBan + ' · #' + found.phien;
+    const duDoanRaw = String(found.dudoan || '').toUpperCase();
+    const pred = duDoanRaw === 'PLAYER' ? 'T' : (duDoanRaw === 'BANKER' ? 'X' : null);
+    const conf = parseInt(found.dotincay) || 0;
+
+    if (pred) {
+      predEl.textContent = pred === 'T' ? 'PLAYER' : 'BANKER';
+      predEl.className = 'mini-pred ' + (pred === 'T' ? 'tai' : 'xiu');
+    } else {
+      predEl.textContent = '---';
+      predEl.className = 'mini-pred wait';
+    }
+
+    wrEl.textContent = conf + '%';
+    statEl.textContent = 'BÀN ' + (num < 10 ? '0' + num : num);
+  } catch (e) {
+    predEl.textContent = 'LỖI API';
+    predEl.className = 'mini-pred wait';
+  }
+}
+
+// ============================================================
+// UI HANDLERS
+// ============================================================
+function handleWidgetClick(e) {
+  const widget = document.getElementById('draggableWidget');
+  if (widget.classList.contains('minimized')) {
+    widget.classList.remove('minimized');
+    widget.style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+  }
+}
+
+function toggleMenu(e) {
+  e.stopPropagation();
+  document.getElementById('menuPanel').classList.toggle('active');
+}
+
+window.addEventListener('click', function(e) {
+  const menu = document.getElementById('menuPanel');
+  const widget = document.getElementById('draggableWidget');
+  if (widget && !widget.contains(e.target)) menu.classList.remove('active');
+});
+
+function updateTheme() {
+  let t = document.getElementById('pickerTai').value;
+  let x = document.getElementById('pickerXiu').value;
+  document.documentElement.style.setProperty('--neon-tai', t);
+  document.documentElement.style.setProperty('--neon-xiu', x);
+  localStorage.setItem('m_tai', t);
+  localStorage.setItem('m_xiu', x);
+}
+if (localStorage.getItem('m_tai')) {
+  document.getElementById('pickerTai').value = localStorage.getItem('m_tai');
+  document.getElementById('pickerXiu').value = localStorage.getItem('m_xiu');
+  updateTheme();
+}
+
+let currentRotation = 0;
+function rotateWidget(e) {
+  e.stopPropagation();
+  currentRotation = (currentRotation + 90) % 360;
+  document.getElementById('draggableWidget').style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+}
+
+let currentScale = 1;
+function scaleWidget(amount, e) {
+  e.stopPropagation();
+  currentScale += amount;
+  if (currentScale < 0.75) currentScale = 0.75;
+  if (currentScale > 1.35) currentScale = 1.35;
+  document.getElementById('draggableWidget').style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+}
+
+// ============================================================
+// DRAG
+// ============================================================
+const widget = document.getElementById('draggableWidget');
+let isDragging = false, startX, startY, initialX, initialY;
+
+function dragStart(e) {
+  if (widget.classList.contains('minimized')) return;
+  if (e.target.closest('.widget-controls') || e.target.closest('.menu-panel')) return;
+  isDragging = true;
+  const cx = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+  const cy = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+  initialX = cx - widget.offsetLeft;
+  initialY = cy - widget.offsetTop;
+}
+function drag(e) {
+  if (!isDragging) return;
+  e.preventDefault();
+  const cx = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+  const cy = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+  widget.style.left = (cx - initialX) + 'px';
+  widget.style.top  = (cy - initialY) + 'px';
+  widget.style.right = 'auto';
+  widget.style.bottom = 'auto';
+}
+function dragEnd() { isDragging = false; }
+
+widget.addEventListener('mousedown', dragStart);
+window.addEventListener('mousemove', drag);
+window.addEventListener('mouseup', dragEnd);
+widget.addEventListener('touchstart', dragStart, { passive: false });
+window.addEventListener('touchmove', drag, { passive: false });
+window.addEventListener('touchend', dragEnd);
+
+function toggleMinimize(e) {
+  e.stopPropagation();
+  document.getElementById('menuPanel').classList.remove('active');
+  widget.classList.toggle('minimized');
+  if (!widget.classList.contains('minimized')) {
+    widget.style.transform = `rotate(${currentRotation}deg) scale(${currentScale})`;
+  } else {
+    widget.style.transform = 'none';
+  }
+}
+
+// ============================================================
+// START
+// ============================================================
+init();
+</script>
+</body>
+</html>
