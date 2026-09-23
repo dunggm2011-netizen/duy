@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Key VIP · DuydevTool</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="/">DuydevTool</a>
+    <div class="nav-links">
+      <a href="/">Trang chủ</a>
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="/tool-tx.html">Tài Xỉu</a>
+      <a href="/tool-bcr.html">Baccarat</a>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center" id="userChip"></div>
+  </div>
+</header>
+
+<div class="wrap" style="padding-top:24px">
+
+  <div class="card mb-16">
+    <h2 style="font-size:18px;font-weight:900;margin-bottom:14px">🔑 KÍCH HOẠT KEY VIP</h2>
+    <div class="alert err" id="keyErr"></div>
+    <div class="field">
+      <label class="lbl">Nhập key của bạn</label>
+      <input class="inp" id="keyInput" placeholder="XXXX-XXXX-XXXX-XXXX" style="text-transform:uppercase">
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="activateKey()">Kích hoạt</button>
+  </div>
+
+  <div class="sec-title"><h2>MUA KEY VIP</h2><i></i></div>
+
+  <div class="grid c3" id="priceGrid"></div>
+
+  <div class="card mt-24" style="border-color:rgba(31,123,255,.3);background:rgba(31,123,255,.06)">
+    <p class="muted" style="font-size:13px;line-height:1.7">
+      💡 Key VIP áp dụng cho <b>tất cả tool</b> (Tài Xỉu + Baccarat).
+      Sau khi mua, key tự động lưu vào tài khoản. Cần kích hoạt lại nếu đổi tài khoản.
+    </p>
+  </div>
+
+</div>
+
+<script src="/app.js"></script>
+<script>
+async function activateKey() {
+  const key = $('#keyInput').value.trim();
+  if (!key) { toast('Chưa nhập key', 'err'); return; }
+
+  const r = await api('/api/key/activate', {
+    method: 'POST',
+    body: JSON.stringify({ key })
+  });
+
+  const errBox = $('#keyErr');
+  if (r.ok) {
+    errBox.classList.remove('on');
+    toast('Kích hoạt thành công: ' + r.label, 'ok');
+    $('#keyInput').value = '';
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    errBox.textContent = r.msg || 'Lỗi kích hoạt';
+    errBox.classList.add('on');
+  }
+}
+
+async function loadPrices() {
+  const r = await api('/api/key/prices');
+  const grid = $('#priceGrid');
+  grid.innerHTML = Object.entries(r.prices || {}).map(([k, v]) => `
+    <div class="gcard">
+      <div class="name">${v.label}</div>
+      <div style="font-size:22px;font-weight:900;color:var(--vip);margin:8px 0">${fmtPrice(v.price)}</div>
+      <button class="btn btn-primary btn-sm" style="width:100%" onclick="buyKey('${k}')">Mua ngay</button>
+    </div>
+  `).join('');
+}
+
+async function buyKey(pkg) {
+  const r = await api('/api/key/buy', {
+    method: 'POST',
+    body: JSON.stringify({ package: pkg })
+  });
+  if (r.ok) {
+    toast('Mua key thành công: ' + r.key, 'ok');
+    setTimeout(() => {
+      navigator.clipboard?.writeText(r.key);
+      location.href = '/dashboard.html';
+    }, 1500);
+  } else {
+    toast(r.msg || 'Lỗi mua key', 'err');
+  }
+}
+
+renderUserChip();
+loadPrices();
+</script>
+</body>
+</html>
