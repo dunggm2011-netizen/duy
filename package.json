@@ -1,0 +1,23 @@
+{
+  "name": "duydevtool",
+  "version": "1.0.0",
+  "description": "DuydevTool - Web tool dự đoán Tài Xỉu & Baccarat",
+  "main": "server.js",
+  "license": "MIT",
+  "author": "Duydev",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "better-sqlite3": "^12.11.1",
+    "bcryptjs": "^2.4.3",
+    "axios": "^1.7.7",
+    "multer": "^2.0.0",
+    "cookie-parser": "^1.4.7"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}
