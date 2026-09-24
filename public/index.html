@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DUYDEVTOOL — Hệ Thống AI Phân Tích</title>
+<link rel="icon" type="image/png" href="IMAGE/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/aurora.css">
+</head>
+<body>
+
+<script>window.DV_LOGGED_IN = false;</script>
+
+<!-- ============ TOPBAR ============ -->
+<header class="topbar" role="banner">
+  <div class="topbar__logo">
+    <img src="IMAGE/logobanner.png" alt="DuydevTool" class="topbar__logo-img">
+  </div>
+  <nav class="topbar__nav" aria-label="Điều hướng">
+    <a class="topbar__nav-link" href="#sec-game">NỀN TẢNG GAME</a>
+  </nav>
+  <div class="topbar__auth">
+    <button class="topbar__btn-login" onclick="openLoginPopup()">ĐĂNG NHẬP</button>
+    <button class="topbar__btn-register" onclick="openRegisterPopup()">ĐĂNG KÝ NGAY</button>
+  </div>
+</header>
+
+<!-- ============ MARQUEE ============ -->
+<div class="marquee" role="marquee">
+  <div class="marquee__badge">
+    <div class="marquee__badge-inner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M11 5L6 9H2v6h4l5 4V5z" fill="rgba(180,220,255,0.9)" stroke="rgba(100,180,255,0.8)" stroke-width="0.5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" stroke="rgba(100,200,255,0.8)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" stroke="rgba(80,160,255,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+  </div>
+  <div class="marquee__fade marquee__fade--left"></div>
+  <div class="marquee__fade marquee__fade--right"></div>
+  <div class="marquee__wrap">
+    <div class="marquee__track">
+      <span class="marquee__item">🚀&nbsp;Chào mừng bạn đến với DUYDEVTOOL – Hệ Thống AI Phân Tích Dữ Liệu Thế Hệ Mới</span>
+      <span class="marquee__sep">✦</span>
+      <span class="marquee__item">🔐&nbsp;Nâng cấp <span class="mq-vip">VIP</span> để mở khóa toàn bộ 18 game</span>
+      <span class="marquee__sep">✦</span>
+      <span class="marquee__item">⚡&nbsp;AI ALPHA Engine đã được nâng cấp – Tối ưu hiệu suất</span>
+      <span class="marquee__sep">✦</span>
+      <span class="marquee__item">💎&nbsp;18 GAME TÀI XỈU đang hoạt động – 9 nhà cái</span>
+      <span class="marquee__sep">✦</span>
+      <span class="marquee__item">🚀&nbsp;Chào mừng bạn đến với DUYDEVTOOL – Hệ Thống AI Phân Tích Dữ Liệu Thế Hệ Mới</span>
+      <span class="marquee__sep">✦</span>
+      <span class="marquee__item">🔐&nbsp;Nâng cấp <span class="mq-vip">VIP</span> để mở khóa toàn bộ 18 game</span>
+      <span class="marquee__sep">✦</span>
+      <span class="marquee__item">⚡&nbsp;AI ALPHA Engine đã được nâng cấp – Tối ưu hiệu suất</span>
+      <span class="marquee__sep">✦</span>
+      <span class="marquee__item">💎&nbsp;18 GAME TÀI XỈU đang hoạt động – 9 nhà cái</span>
+      <span class="marquee__sep">✦</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SLIDER ============ -->
+<div class="mban-out" id="mBanOut">
+  <div class="mban-track" id="mBtrack">
+
+    <!-- Slide 1: AI -->
+    <div class="mbslide mbslide-ai">
+      <div class="mbs1-grid"></div>
+      <div class="mbs1-gl"></div>
+      <div class="mbs1-gr"></div>
+      <div class="mbs1-sl"></div>
+      <div class="mbs1-content">
+        <div class="mbs1-chip">
+          <div class="mbs1-cdot"></div>
+          <span class="mbs1-ctxt">DUYDEVTOOL · AI ENGINE</span>
+        </div>
+        <div class="mbs1-title">AI <span>DỰ ĐOÁN</span><span class="mbs1-cursor">|</span></div>
+        <div class="mbs1-sub">PHÂN TÍCH · DỰ ĐOÁN · THẮNG LỚN</div>
+        <button class="mbs1-cta" onclick="openLoginPopup()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          MUA KEY NGAY
+        </button>
+      </div>
+      <div class="mbs1-stats">
+        <div class="mbs1-sbox"><div class="mbs1-sval">70<span>%</span></div><div class="mbs1-slbl">CHÍNH XÁC</div></div>
+        <div class="mbs1-sbox"><div class="mbs1-sval">2.4<span>K</span></div><div class="mbs1-slbl">NGƯỜI DÙNG</div></div>
+        <div class="mbs1-live"><div class="mbs1-ldot"></div><span class="mbs1-ltxt">50 online</span></div>
+      </div>
+    </div>
+
+    <!-- Slide 2: API -->
+    <div class="mbslide mbslide-apigame">
+      <div class="api-hex-grid"></div>
+      <div class="api-glow"></div>
+      <div class="api-glow2"></div>
+      <div class="api-scanline"></div>
+      <div class="api-content">
+        <div class="api-chip"><div class="api-chip-dot"></div><span class="api-chip-txt">CỬA HÀNG API</span></div>
+        <div class="api-title">API<br><span>GAME</span></div>
+        <div class="api-sub">// 18 GAME · TÍCH HỢP DỄ DÀNG</div>
+        <a class="api-cta" href="/api">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          XEM API NGAY
+        </a>
+      </div>
+      <div class="api-code-box">
+        <div><span class="lk">model:</span><span class="ls">"tool247"</span>,</div>
+        <div><span class="lk">games:</span><span class="ln">18</span>,</div>
+        <div><span class="lk">latency:</span><span class="ln">27</span>ms,</div>
+        <div><span class="lk">status:</span><span class="ls">"active"</span></div>
+        <div class="api-live-badge"><div class="api-live-dot"></div><span>68</span> req/s</div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Community -->
+    <div class="mbslide mbslide-community">
+      <div class="comm-grid"></div>
+      <div class="comm-orb-l"></div>
+      <div class="comm-orb-r"></div>
+      <div class="comm-orb-m"></div>
+      <div class="comm-scan"></div>
+      <div class="comm-content">
+        <div class="comm-chip"><div class="comm-cdot"></div><span class="comm-ctxt">CỘNG ĐỒNG · ONLINE</span></div>
+        <div class="comm-title">THAM GIA<br><span>NGAY!</span></div>
+        <div class="comm-sub">CHIA SẺ · HỌC HỎI · CHIẾN THẮNG</div>
+        <div class="comm-btns">
+          <a class="comm-btn-tg" href="https://t.me/toolgametanh78" target="_blank">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            TELEGRAM
+          </a>
+          <a class="comm-btn-dc" href="https://discord.gg/wnwM6jMx" target="_blank">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.081.114 18.105.134 18.12a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            DISCORD
+          </a>
+        </div>
+      </div>
+      <div class="comm-stats">
+        <div class="comm-sbox"><div class="comm-sval">2.5<span>K</span></div><div class="comm-slbl">THÀNH VIÊN</div></div>
+        <div class="comm-live"><div class="comm-ldot"></div><span class="comm-ltxt">LIVE NOW</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="mbdots">
+    <div class="mbd on" onclick="mGos(0)"></div>
+    <div class="mbd" onclick="mGos(1)"></div>
+    <div class="mbd" onclick="mGos(2)"></div>
+    <span class="mbdots-counter" id="mSlideCounter">01/03</span>
+  </div>
+</div>
+
+<!-- ============ TABS ============ -->
+<div class="mtabs">
+  <div class="mtab on" onclick="mFilter('all',this)">TẤT CẢ</div>
+  <div class="mtab" onclick="mFilter('taixiu',this)">TOOL TÀI XỈU</div>
+  <div class="mtab" onclick="mFilter('md5',this)">TOOL MD5</div>
+</div>
+
+<!-- ============ SECTION: 18 GAME ============ -->
+<div class="tool-section" id="sec-game">
+  <div class="section-title" style="--accent:#f59e0b"><span>🎮 18 GAME TÀI XỈU</span></div>
+  <div class="mggrid" id="gameGrid"></div>
+</div>
+
+<div class="home-bottom-spacer"></div>
+
+<!-- ============ BOTTOM NAV ============ -->
+<nav class="mbotnav" role="navigation">
+  <div class="bn-top-glow-line"><div class="bn-top-glow-sweep"></div></div>
+  <div class="mbotnav-body">
+    <div class="bn-hex-pattern"></div>
+    <div class="bn-scanline"></div>
+
+    <button class="bn-btn" onclick="openAuthModal('register')">
+      <div style="position:relative;display:flex;align-items:center;justify-content:center;width:var(--btn-w-para);height:var(--btn-h-para);clip-path:polygon(0% 0%,91% 0%,100% 100%,9% 100%);background:linear-gradient(160deg,#4a90e2 0%,#2563eb 45%,#1a3faa 100%);box-shadow:0 0 24px rgba(59,130,246,.75);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="position:relative;z-index:1;">
+          <rect x="3" y="2" width="14" height="18" rx="2.5" opacity=".95"/>
+          <circle cx="19" cy="18" r="5" fill="#2563eb"/>
+          <line x1="19" y1="15.5" x2="19" y2="20.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="16.5" y1="18" x2="21.5" y2="18" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span style="font-size:var(--label-sz);font-weight:900;letter-spacing:.15em;color:#93c5fd;">ĐĂNG KÝ</span>
+    </button>
+
+    <div class="bn-center-raise">
+      <button class="bn-btn" onclick="location.href='https://t.me/Cskhtool11'">
+        <div style="position:relative;width:var(--btn-w-hxg);height:var(--btn-h-hxg);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:linear-gradient(135deg,#9333ea,#6d28d9,#4c1d95);box-shadow:0 0 34px rgba(139,92,246,.85);">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+              <circle cx="12" cy="8" r="3.5" opacity=".95"/>
+              <path d="M5 20c0-4.4 3.1-7.5 7-7.5s7 3.1 7 7.5" fill="white" opacity=".95"/>
+            </svg>
+          </div>
+        </div>
+        <span style="font-size:var(--label-sz);font-weight:900;letter-spacing:.12em;color:#c4b5fd;">HỖ TRỢ</span>
+      </button>
+    </div>
+
+    <button class="bn-btn" onclick="openAuthModal('login')">
+      <div style="position:relative;display:flex;align-items:center;justify-content:center;width:var(--btn-w-para);height:var(--btn-h-para);clip-path:polygon(9% 0%,100% 0%,91% 100%,0% 100%);background:linear-gradient(160deg,#fcd34d 0%,#f59e0b 45%,#b45309 100%);box-shadow:0 0 26px rgba(245,158,11,.8);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
+          <rect x="13" y="3" width="8" height="18" rx="2" fill="rgba(255,255,255,.15)" stroke="white" stroke-width="1.8"/>
+          <polyline points="9 17 14 12 9 7" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="14" y1="12" x2="3" y2="12" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span style="font-size:var(--label-sz);font-weight:900;letter-spacing:.15em;color:#fcd34d;">ĐĂNG NHẬP</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ============ AUTH MODAL ============ -->
+<div id="authModal" class="auth-modal" hidden>
+  <div class="auth-modal__backdrop" id="authBackdrop"></div>
+  <div class="auth-modal__box">
+    <div class="auth-glow-top"></div>
+    <div class="auth-glow-bot"></div>
+    <div class="auth-tabs" id="authTabs">
+      <button type="button" id="tabBtnLogin" class="auth-tab active">ĐĂNG NHẬP</button>
+      <button type="button" id="tabBtnRegister" class="auth-tab">ĐĂNG KÝ</button>
+    </div>
+    <button type="button" id="authClose" class="auth-close">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="white" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </button>
+
+    <form id="formLogin" class="auth-form">
+      <div class="auth-field">
+        <span class="auth-field__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7" stroke-linecap="round"/></svg></span>
+        <input type="email" name="email" placeholder="Email" required>
+      </div>
+      <div class="auth-field">
+        <span class="auth-field__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-linecap="round"/></svg></span>
+        <input type="password" name="password" placeholder="Mật khẩu" required>
+      </div>
+      <button type="submit" class="auth-btn-login">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        <span>ĐĂNG NHẬP</span>
+      </button>
+      <div id="loginMessage" class="auth-message"></div>
+      <p class="auth-hint">Chưa có tài khoản? <span class="auth-hint__link" onclick="switchAuthTab('register')">Đăng ký ngay</span></p>
+    </form>
+
+    <form id="formRegister" class="auth-form" style="display:none">
+      <div class="auth-field">
+        <span class="auth-field__icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <input type="text" name="username" placeholder="Tên đăng nhập" required>
+      </div>
+      <div class="auth-field">
+        <span class="auth-field__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7" stroke-linecap="round"/></svg></span>
+        <input type="email" name="email" placeholder="Gmail" required>
+      </div>
+      <div class="auth-field">
+        <span class="auth-field__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-linecap="round"/></svg></span>
+        <input type="password" name="password" placeholder="Mật khẩu" required>
+      </div>
+      <div class="auth-terms">
+        <label class="auth-terms__box">
+          <input type="checkbox" id="agreeTerms">
+          <div class="auth-terms__check">
+            <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </div>
+        </label>
+        <p class="auth-terms__text">Tôi đã đọc và đồng ý với <span class="auth-terms__link">Điều khoản</span></p>
+      </div>
+      <button type="submit" id="btnRegisterSubmit" class="auth-btn-register" disabled>
+        <span>ĐĂNG KÝ</span>
+      </button>
+      <div id="registerMessage" class="auth-message"></div>
+      <p class="auth-hint">Đã có tài khoản? <span class="auth-hint__link" onclick="switchAuthTab('login')">Đăng nhập ngay</span></p>
+    </form>
+  </div>
+</div>
+
+<!-- ============ NOTIFY ============ -->
+<div id="notifyOverlay">
+  <div id="notifyBox">
+    <div class="notify-head">
+      <div class="notify-head-line"></div>
+      <span class="notify-title">THÔNG BÁO</span>
+      <button type="button" class="notify-close" onclick="notifyClose()">✕</button>
+    </div>
+    <div class="notify-icon-wrap">
+      <div class="notify-icon-circle success">✓</div>
+    </div>
+    <div id="notifyMessage" class="notify-msg">Nội dung</div>
+    <div class="notify-actions">
+      <button type="button" class="notify-ok" onclick="notifyClose()">ĐỒNG Ý</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 18 GAME TOOL247
+// ============================================================
+const GAMES = [
+  { key: '68tx',        name: '68 TÀI XỈU',    color: 'gc-purple', tag: 'VIP' },
+  { key: '789club',     name: '789CLUB TX',    color: 'gc-cyan',   tag: 'VIP' },
+  { key: 'b52_tx',      name: 'B52 TÀI XỈU',   color: 'gc-teal',   tag: 'HOT' },
+  { key: 'b52_md5',     name: 'B52 MD5',       color: 'gc-teal',   tag: 'VIP' },
+  { key: 'betvip_tx',   name: 'BETVIP TÀI XỈU',color: 'gc-blue',   tag: 'HOT' },
+  { key: 'betvip_md5',  name: 'BETVIP MD5',    color: 'gc-blue',   tag: 'VIP' },
+  { key: 'hitclub_tx',  name: 'HITCLUB TX',    color: 'gc-gold',   tag: 'HOT' },
+  { key: 'hitclub_md5', name: 'HITCLUB MD5',   color: 'gc-gold',   tag: 'VIP' },
+  { key: 'lc79_hu',     name: 'LC79 TÀI XỈU',  color: 'gc-green',  tag: 'HOT' },
+  { key: 'lc79_md5',    name: 'LC79 MD5',      color: 'gc-green',  tag: 'VIP' },
+  { key: 'luck8_tx',    name: 'LUCK8 TÀI XỈU', color: 'gc-rose',   tag: 'VIP' },
+  { key: 'luck8_md5',   name: 'LUCK8 MD5',     color: 'gc-rose',   tag: 'VIP' },
+  { key: 'max789_tx',   name: 'MAX789 TX',     color: 'gc-indigo', tag: 'HOT' },
+  { key: 'max789_md5',  name: 'MAX789 MD5',    color: 'gc-indigo', tag: 'VIP' },
+  { key: 'rikvip_hu',   name: 'RIKVIP TÀI XỈU',color: 'gc-purple', tag: 'VIP' },
+  { key: 'rikvip_md5',  name: 'RIKVIP MD5',    color: 'gc-purple', tag: 'VIP' },
+  { key: 'son789_tx',   name: 'SON789 TX',     color: 'gc-cyan',   tag: 'VIP' },
+  { key: 'son789_md5',  name: 'SON789 MD5',    color: 'gc-cyan',   tag: 'VIP' }
+];
+
+function renderGames() {
+  const grid = document.getElementById('gameGrid');
+  if (!grid) return;
+  grid.innerHTML = GAMES.map(g => {
+    const tagHtml = g.tag
+      ? `<div class="mgcard__tag ${g.tag === 'HOT' ? 'gc-hot' : 'gc-new'}">${g.tag}</div>`
+      : '';
+    // Logo chữ (không cần ảnh)
+    const initials = g.name.split(' ').map(w => w[0]).join('').slice(0, 3);
+    return `
+      <div class="mgcard ${g.color}" data-game="${g.key}">
+        <div class="mgcard__grad"></div>
+        <div class="mgcard__scan"></div>
+        <div class="mgcard__glow"></div>
+        <div class="mgcard__shim"></div>
+        ${tagHtml}
+        <div class="mgcard__vip">VIP</div>
+        <div class="mgcard__inner">
+          <div class="mgcard__logo-wrap">
+            <span style="font-family:var(--font-display);font-size:24px;font-weight:900;color:#fff;text-shadow:0 0 12px currentColor;">${initials}</span>
+          </div>
+          <div class="mgcard__name">${g.name}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// SLIDER
+// ============================================================
+let currentSlide = 0;
+const totalSlides = 3;
+
+function mGos(idx) {
+  currentSlide = idx;
+  const track = document.getElementById('mBtrack');
+  track.style.transform = `translateX(-${idx * 100}%)`;
+  document.querySelectorAll('.mbd').forEach((d, i) => {
+    d.classList.toggle('on', i === idx);
+  });
+  const counter = document.getElementById('mSlideCounter');
+  if (counter) counter.textContent = String(idx + 1).padStart(2, '0') + '/03';
+}
+
+setInterval(() => {
+  mGos((currentSlide + 1) % totalSlides);
+}, 5000);
+
+// ============================================================
+// TABS FILTER
+// ============================================================
+function mFilter(type, el) {
+  document.querySelectorAll('.mtab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+
+  const cards = document.querySelectorAll('#gameGrid .mgcard');
+  cards.forEach(card => {
+    const key = card.dataset.game || '';
+    let show = true;
+    if (type === 'taixiu') show = key.includes('_tx') || key.includes('_hu') || key === '68tx' || key === '789club';
+    else if (type === 'md5') show = key.includes('_md5');
+    card.style.display = show ? '' : 'none';
+  });
+}
+
+// ============================================================
+// AUTH MODAL
+// ============================================================
+function openAuthModal(tab) {
+  const modal = document.getElementById('authModal');
+  modal.hidden = false;
+  switchAuthTab(tab || 'login');
+}
+function openLoginPopup() { openAuthModal('login'); }
+function openRegisterPopup() { openAuthModal('register'); }
+
+function switchAuthTab(tab) {
+  const tabLogin = document.getElementById('tabBtnLogin');
+  const tabReg = document.getElementById('tabBtnRegister');
+  const formLogin = document.getElementById('formLogin');
+  const formReg = document.getElementById('formRegister');
+  if (tab === 'login') {
+    tabLogin.classList.add('active');
+    tabReg.classList.remove('active');
+    formLogin.style.display = '';
+    formReg.style.display = 'none';
+  } else {
+    tabLogin.classList.remove('active');
+    tabReg.classList.add('active');
+    formLogin.style.display = 'none';
+    formReg.style.display = '';
+  }
+}
+
+document.getElementById('authClose')?.addEventListener('click', () => {
+  document.getElementById('authModal').hidden = true;
+});
+document.getElementById('authBackdrop')?.addEventListener('click', () => {
+  document.getElementById('authModal').hidden = true;
+});
+
+// ============================================================
+// NOTIFY
+// ============================================================
+function notifyOpen(title, msg, type) {
+  document.getElementById('notifyOverlay').classList.add('active');
+  document.getElementById('notifyMessage').textContent = msg;
+  document.querySelector('.notify-title').textContent = title || 'THÔNG BÁO';
+}
+function notifyClose() {
+  document.getElementById('notifyOverlay').classList.remove('active');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderGames();
+</script>
+</body>
+</html>
